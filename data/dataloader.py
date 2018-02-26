@@ -108,3 +108,39 @@ def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com
         )
     ))
     return(data)
+
+
+def break_out_blocks(pilot_data):
+    """
+    Function to indicate separate blocks of collected data in an "iteration_block" column.
+    
+    Parameter
+    ---------
+    pilot_data: DataFrame
+    
+    Returns
+    -------
+    pilot_data: DataFrame
+    """
+    on_target_blocks = {}
+    row_indices = []
+    for i, t in enumerate(pilot_data.target):
+        if (i > 0):
+            if(pilot_data.ontarget[i - 1] and not pilot_data.ontarget[i]):
+                if t in on_target_blocks:
+                    on_target_blocks[t][
+                        max(
+                            [k for k in on_target_blocks[t]]
+                        ) + 1
+                    ] = row_indices
+                else:
+                    on_target_blocks[t] = {}
+                    on_target_blocks[t][1] = row_indices
+                row_indices = []
+            elif(pilot_data.ontarget[i]):
+                row_indices.append(i)
+    for target in on_target_blocks:
+        for block in on_target_blocks[target]:
+            for row in on_target_blocks[target][block]:
+                pilot_data.loc[row, "iteration_block"] = block
+    return(pilot_data)
