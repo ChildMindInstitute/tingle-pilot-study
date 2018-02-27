@@ -2,3 +2,6 @@ firebase-credentials/*
 data
 .ipynb_checkpoints
 *__pycache__*
+derby.log
+metastore_db
+metastore_db/*

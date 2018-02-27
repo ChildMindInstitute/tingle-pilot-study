@@ -59,13 +59,17 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
     """
     inputs = []
     num_targets = len(targets)
-    df = df[df.ontarget].copy()
+    df = df[
+        (df.ontarget) &
+        (df.iteration_block.isin(test_blocks))
+    ].copy()
     for i, target in enumerate(targets):
         sample_n = 0
         for row in df[
             df.target==target
         ][input_columns].values.tolist():
-            if exclude and sample_n < exclude:
+            if (exclude and sample_n < exclude):
+                sample_n = sample_n + 1
                 continue
             elif (
                 (not n_samples)
@@ -113,7 +117,10 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
     """
     on_target = []
     num_targets = len(targets["target"])
-    df = df[df.ontarget].copy()
+    df = df[
+        (df.ontarget) &
+        (df.iteration_block.isin(train_blocks))
+    ].copy()
     for i, target in enumerate(targets["target"]):
         sample_n = 0
         for row in df[
