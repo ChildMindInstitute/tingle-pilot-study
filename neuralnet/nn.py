@@ -17,12 +17,69 @@ def place_true(total, index):
     l: list of ints
         one-hot list
     """
-    l = list(np.zeros(total, int))
-    l[index] = 1
+    l = list(
+        np.zeros(
+            total,
+            float
+        )
+    )
+    l[index] = 1.0
     return(l)
 
 
-def define_trainer_data(df, targets, training_columns, train_blocks):
+def define_activation(df, targets, input_columns, test_blocks, n_samples=None, exclude=None):
+    """
+    Function to build training objects for neural networks from
+    a DataFrame
+    
+    Parameters
+    ----------
+    df: DataFrame
+    
+    targets: list of strings
+        list of targets (values in df.target)
+            
+    input_columns: list of strings
+        columns to include as inputs
+        
+    test_blocks: list of numerics
+        iteration blocks to include
+        
+    n_samples: int, optional
+        exact number of samples to use
+        
+    exclude: int, optional
+        exact number of initial samples to exclude
+        
+    Returns
+    -------
+    inputs: list of lists
+        inputs[]: list of numeric
+            input values
+    """
+    inputs = []
+    num_targets = len(targets)
+    df = df[df.ontarget].copy()
+    for i, target in enumerate(targets):
+        sample_n = 0
+        for row in df[
+            df.target==target
+        ][input_columns].values.tolist():
+            if exclude and sample_n < exclude:
+                continue
+            elif (
+                (not n_samples)
+                or
+                (sample_n < n_samples)
+            ):
+                inputs.append(
+                    [float(num) for num in row]
+                )
+                sample_n = sample_n + 1
+    return(inputs)
+
+
+def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=None):
     """
     Function to build training objects for neural networks from
     a DataFrame
@@ -43,6 +100,9 @@ def define_trainer_data(df, targets, training_columns, train_blocks):
     train_blocks: list of numerics
         iteration blocks to include
         
+    n_samples: int, optional
+        exact number of samples to use
+        
     Returns
     -------
     on_target: list of dictionaries
@@ -55,31 +115,44 @@ def define_trainer_data(df, targets, training_columns, train_blocks):
     num_targets = len(targets["target"])
     df = df[df.ontarget].copy()
     for i, target in enumerate(targets["target"]):
+        sample_n = 0
         for row in df[
             df.target==target
         ][training_columns].values.tolist():
-            on_target.append(
-                {
-                    "input": row,
-                    "output": place_true(
-                        num_targets,
-                        i
-                    )
-                }
-            )
+            if (
+                (not n_samples)
+                or
+                (sample_n < n_samples)
+            ):
+                on_target.append(
+                    {
+                        'input': [float(num) for num in row],
+                        'output': place_true(
+                            num_targets,
+                            i
+                        )
+                    }
+                )
+                sample_n = sample_n + 1
     for offtarget in targets["offtarget"]:
+        sample_n = 0
         for row in df[
             df.target==offtarget
         ][training_columns].values.tolist():
-            on_target.append(
-                {
-                    "input": row,
-                    "output": list(
-                        np.zeros(
-                            num_targets,
-                            int
+            if (
+                (not n_samples)
+                or
+                (sample_n < n_samples)
+            ):
+                on_target.append(
+                    {
+                        'input': [float(num) for num in row],
+                        'output': list(
+                            np.zeros(
+                                num_targets,
+                                float
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
     return(on_target)
