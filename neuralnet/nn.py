@@ -27,7 +27,7 @@ def place_true(total, index):
     return(l)
 
 
-def define_activation(df, targets, input_columns, test_blocks, n_samples=None, exclude=None):
+def define_activation(df, targets, input_columns, test_blocks, n_samples=None, exclude=None, scale=1):
     """
     Function to build training objects for neural networks from
     a DataFrame
@@ -50,6 +50,9 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
         
     exclude: int, optional
         exact number of initial samples to exclude
+        
+    scale: float, optional
+        divisor to scale inputs
         
     Returns
     -------
@@ -77,13 +80,13 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
                 (sample_n < n_samples)
             ):
                 inputs.append(
-                    [float(num) for num in row]
+                    [float(num)/float(scale) for num in row]
                 )
                 sample_n = sample_n + 1
     return(inputs)
 
 
-def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=None):
+def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=None, scale=1):
     """
     Function to build training objects for neural networks from
     a DataFrame
@@ -106,6 +109,9 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
         
     n_samples: int, optional
         exact number of samples to use
+        
+    scale: float, optional
+        divisor to scale inputs
         
     Returns
     -------
@@ -133,7 +139,7 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
             ):
                 on_target.append(
                     {
-                        'input': [float(num) for num in row],
+                        'input': [float(num)/float(scale) for num in row],
                         'output': place_true(
                             num_targets,
                             i
@@ -153,7 +159,7 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
             ):
                 on_target.append(
                     {
-                        'input': [float(num) for num in row],
+                        'input': [float(num)/float(scale) for num in row],
                         'output': list(
                             np.zeros(
                                 num_targets,
