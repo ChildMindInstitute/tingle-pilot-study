@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def place_true(total, index):
     """
     Function to place one 1 in a list of 0s
@@ -51,8 +52,8 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
     exclude: int, optional
         exact number of initial samples to exclude
         
-    scale: float, optional
-        divisor to scale inputs
+    scale: list of floats, optional
+        divisors to scale inputs, one per input column
         
     Returns
     -------
@@ -60,6 +61,9 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
         inputs[]: list of numeric
             input values
     """
+    scale = [
+        df[input_column].astype(float).max() for input_column in input_columns
+    ]
     inputs = []
     num_targets = len(targets)
     df = df[
@@ -80,13 +84,17 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
                 (sample_n < n_samples)
             ):
                 inputs.append(
-                    [float(num)/float(scale) for num in row]
+                    [
+                        float(num)/float(
+                            scale[row_i]
+                        ) for row_i, num in enumerate(row)
+                    ]
                 )
                 sample_n = sample_n + 1
     return(inputs)
 
 
-def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=None, scale=1):
+def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=None, scale=None):
     """
     Function to build training objects for neural networks from
     a DataFrame
@@ -110,8 +118,8 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
     n_samples: int, optional
         exact number of samples to use
         
-    scale: float, optional
-        divisor to scale inputs
+    scale: list of floats, optional
+        divisors to scale inputs, one per training column
         
     Returns
     -------
@@ -121,6 +129,9 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
         on_target[]["output"]: list of numeric
             output values
     """
+    scale = [
+        df[input_column].astype(float).max() for input_column in training_columns
+    ]
     on_target = []
     num_targets = len(targets["target"])
     df = df[
@@ -139,7 +150,11 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
             ):
                 on_target.append(
                     {
-                        'input': [float(num)/float(scale) for num in row],
+                        'input': [
+                            float(num)/float(
+                                scale[row_i]
+                            ) for row_i, num in enumerate(row)
+                        ],
                         'output': place_true(
                             num_targets,
                             i
@@ -159,7 +174,11 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
             ):
                 on_target.append(
                     {
-                        'input': [float(num)/float(scale) for num in row],
+                        'input': [
+                            float(num)/float(
+                                scale[row_i]
+                            ) for row_i, num in enumerate(row)
+                        ],
                         'output': list(
                             np.zeros(
                                 num_targets,
