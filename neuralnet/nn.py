@@ -1,33 +1,6 @@
 import numpy as np
 
 
-def place_true(total, index):
-    """
-    Function to place one 1 in a list of 0s
-    
-    Parameters
-    ----------
-    total: int
-        length of list of zeroes
-        
-    index: int
-        0-indexed placement of 1
-        
-    Returns
-    -------
-    l: list of ints
-        one-hot list
-    """
-    l = list(
-        np.zeros(
-            total,
-            float
-        )
-    )
-    l[index] = 1.0
-    return(l)
-
-
 def define_activation(df, targets, input_columns, test_blocks, n_samples=None, exclude=None, scale=1):
     """
     Function to build training objects for neural networks from
@@ -188,3 +161,30 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
                     }
                 )
     return(on_target)
+
+
+def place_true(total, index):
+    """
+    Function to place one 1 in a list of 0s
+    
+    Parameters
+    ----------
+    total: int
+        length of list of zeroes
+        
+    index: int
+        0-indexed placement of 1
+        
+    Returns
+    -------
+    l: list of ints
+        one-hot list
+    """
+    l = list(
+        np.zeros(
+            total,
+            float
+        )
+    )
+    l[index] = 1.0
+    return(l)
