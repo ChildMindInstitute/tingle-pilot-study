@@ -9,21 +9,27 @@ import pandas as pd
 import os
 
 
-def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com/"):
+def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com/", notes=False):
     """
     Function to load data from Firebase.
     Requires [Firebase service account credentials](https://console.firebase.google.com/project/tingle-pilot-collected-data/settings/serviceaccounts/adminsdk)
     in JSON format.
     
-    Parameter
-    ---------
+    Parameters
+    ----------
     dbURL : string (optional)
         Firebase database to pull data from
+        
+    notes : Boolean (optional)
+        Return notes as well as data?
         
     Returns
     -------
     data : DataFrame
         Pandas DataFrame of data from Firebase
+        
+    notes : DataFrame (optional)
+        Pandas DataFrame of notes from Firebase iff parameter notes==True
     """
     # Fetch the service account key JSON file contents
     try:
@@ -78,7 +84,6 @@ def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com
     firebase_admin.initialize_app(cred, {
         'databaseURL': dbURL
     })
-
     samples = db.reference('samples').get()
     batches = {
         k: v for d in [
@@ -107,7 +112,28 @@ def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com
             "green"
         )
     ))
-    return(data)
+    if not notes:
+        return(data)
+    else:
+        notesNotesNotes = db.reference('notes').get()
+        notesBatches = {
+            k: v for d in [
+                notesNotesNotes[
+                    key
+                ] for key in notesNotesNotes
+            ] for k, v in d.items()
+        }
+        notes = pd.DataFrame([{
+            k if k!= "lastsample" else "timestamp": notesBatches[i][k] if k != "lastsample" else notesBatches[i][k]["timestamp"] if "timestamp" in notesBatches[i][k] else None for k in [
+                "notes",
+                "lastsample",
+                "username"
+            ] if k in notesBatches[i]
+        } for i in notesBatches])
+        notes["human-readable timestamp"] = pd.to_datetime(
+            notes["timestamp"]*1000000
+        )
+    return(data, notes)
 
 
 def break_out_blocks(pilot_data):
