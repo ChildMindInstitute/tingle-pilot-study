@@ -5,3 +5,4 @@ data
 derby.log
 metastore_db
 metastore_db/*
+.orig
