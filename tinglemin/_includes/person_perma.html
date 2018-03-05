@@ -1,0 +1,219 @@
+<div class="project-modal perma-content" id="{{ page.modal-id }}" tabindex="-1" role="dialog" aria-hidden="true" style="position:relative; top:1ex;">
+    <div class="modal-content">
+        <a href="{{ site.url }}{{ site.baseurl }}">
+        <div class="close-modal">
+            <div class="lr">
+                <div class="rl">
+                </div>
+            </div>
+        </div>
+        </a>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                    <div class="modal-body">
+                      <div class="row {% if page.categories contains 'team'%}justify-content-start">{% else %}modal-center"><center>{% endif %}
+                        <div class="col-md-6">
+                          <a href="{{ site.baseurl }}{{ page.permalink }}"><img src="{{ site.baseurl }}/assets/img/people/{{ page.img }}" class="img-responsive" alt="{{ page.alt }}"></a>
+                          <a href="{{ site.baseurl }}{{ page.permalink }}"><h2>{{ page.name }}</h2></a>
+                          {% if page.description %}
+                            {{ page.description }}
+                          {% endif %}
+                          {% if page.title1 %}
+                            <p class="no-space-above-below text-muted">{{ page.title1 }}</p>
+                          {% endif %}
+                          {% if page.title2 %}
+                            <p class="no-space-above-below text-muted">{{ page.title2 }}</p>
+                          {% endif %}
+                          {% if page.title3 %}
+                            <p class="no-space-above-below text-muted">{{ page.title3 }}</p>
+                          {% endif %}
+                          {% if page.website %}
+                            <p class="no-space-above-below text-muted"><a href="{{ page.website }}">{{ page.website }}</a></p>
+                          {% endif %}
+                          {% if page.email %}
+                            <p class="no-space-above-below text-muted">{{ page.email }}</p>
+                          {% endif %}
+                          {% if page.phone %}
+                            <p class="no-space-above-below text-muted">{{ page.phone }}</p>
+                          {% endif %}
+                          {% if page.github %}
+                            <p class="no-space-above-below text-muted">
+                              code: <a href="https://www.github.com/{{- page.github -}}">
+                                <img
+                                  src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/GitHub-Mark/PNG/GitHub-Mark-32px.png"
+                                  alt="octocat"
+                                  style="margin-bottom:0;"
+                                />
+                              </a>
+                            </p>
+                          {% endif %}
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 vertical-scroll">
+                          {% assign cats = "device, app, informatics, voice" | split: ", " %}
+                          {%- for category in cats -%}
+                            <div class="row justify-content-start">
+                              {%- for project in site.categories.project -%}
+                                {%- for people in project.people -%}
+                                  {%- if (page.modal-id == people) and (project.categories contains category) -%}
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                                      <a href="{{ site.url }}{{ site.baseurl }}{{ project.permalink }}">
+                                        <img src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/{{- project.glyph -}}" />
+                                        <span class="github-name">{{- project.title -}}</span>
+                                      </a>
+                                    </div>
+                                  {%- endif -%}
+                                {%- endfor -%}
+                              {%- endfor -%}
+                            </div>
+                          {%- endfor -%}
+                          {% assign other_contributions = false %}
+                          {% for post in site.posts %}
+                            {% for person in post.additional-people %}
+                              {% if person == page.modal-id %}
+                                {% if other_contributions == false %}
+                                  {% assign other_contributions = true %}
+                                  <div class="row justify-content-start">
+                                    {% comment %}<h3 class="modal-center">Contributed To</h3>{% endcomment %}
+                                {% endif %}
+                                <div style="text-align:left;">
+                                  {% if post.glyph %}
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                                      <a href="{{ site.url }}{{ site.baseurl }}{{ post.permalink }}">
+                                        <img src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/{{- post.glyph -}}" />
+                                  {% else if post.thumbnail %}
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                                      <a href="{{ site.url }}{{ site.baseurl }}{{ post.permalink }}">
+                                        <img src="{{ site.url }}{{ site.baseurl }}/assets/img/projects/{{- post.thumbnail -}}" />
+                                  {% else %}
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                                      <a href="{{ site.url }}{{ site.baseurl }}{{ post.permalink }}">
+                                        <b>{{ post.date | date: " %F" }}</b>:
+                                  {% endif %} <span class="github-name">{{ post. title }}</span></a>
+                                    </div>
+                                </div>
+                              {% endif %}
+                            {% endfor %}
+                          {% endfor %}
+                          {%if other_contributions == true %}
+                        </div>
+                        {% endif %}
+                        </div>
+                      </div>
+                    <div class="row justify-content-start">
+                        {% assign blog = false %}
+                        {% for post in site.categories.blog %}
+                          {% for person in post.people %}
+                          {% if person == page.modal-id %}
+                            {% if blog == false %}
+                              {% assign blog = true %}
+                              <h3 class="modal-center">Blog Posts</h3>
+                            {% endif %}
+                            <div style="text-align:left;">
+                              {% if post.glyph %}
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                              <a href="{{ site.url }}{{ site.baseurl }}{{ post.permalink }}">
+                                <img src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/{{- post.glyph -}}" />
+                              {% else if post.thumbnail %}
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                              <a href="{{ site.url }}{{ site.baseurl }}{{ post.permalink }}">
+                                <img src="{{ site.url }}{{ site.baseurl }}/assets/img/projects/{{- post.thumbnail -}}" />
+                              </span>
+                              {% else %}
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                              <a href="{{ site.url }}{{ site.baseurl }}{{ post.permalink }}">
+                              {% endif %}
+                              <b>{{ post.date | date: " %F" }}</b>:
+                              {{ post. title }}</a>
+                             </div>
+                           </div>
+                          {% endif %}
+                          {% endfor %}
+                        {% endfor %}
+                        {%- assign future_presentations = false -%}
+                        {%- assign past_presentations = false -%}
+                        {%- assign ul = false -%}
+                        {%- assign today_seconds = 'today' | date: "%s" -%}
+                        <div>
+                        {%- for presentation in (site.categories.presentations | sort: ['date', 'time']) -%}
+                          {%- for people in presentation.people -%}
+                            {%- if page.modal-id == people -%}
+                                {%- assign presentation_seconds = presentation.date | date: "%s" -%}
+                                  {%- if today_seconds < presentation_seconds -%}
+                                    {%- if future_presentations == false -%}
+                                      <hr>
+                                      <h3 class="modal-center">Upcoming Presentations</h3>
+                                      {%- assign future_presentations = true -%}
+                                      <ul>
+                                      {%- assign ul = true %-}
+                                    {%- endif -%}
+                                    {%- if past_presentations == false -%}
+                                      {%- if ul == true -%}
+                                        </ul>
+                                       {%- assign ul = false -%}
+                                      {%- endif -%}
+                                      {%- assign ul = true %-}
+                                      {%- assign past_presentations = true -%}
+                                    {%- endif -%}
+                                  {%- endif -%}
+                                {%- elsif past_presentations == false -%}
+                                  <hr>
+                                  <h3 class="modal-center">Past Presentations</h3>
+                                  {%- assign past_presentations = true -%}
+                                  <ul>
+                                {%- endif -%}
+                                <li>{%- if presentation.date -%}
+                                  {{- presentation.date | date: "%A, %B %e, %Y" -}}{% if presentation.time %}
+                                    &nbsp;{{- presentation.time | date: "%l:%M %P %Z (UTC %z)" -}}
+                                  {% endif %}
+                                {%- endif -%}
+                                &nbsp;<a href="{{ site.url }}{{ site.baseurl }}{{ presentation.permalink }}"><span class="github-name">{{- presentation.title -}}</span></a>
+                                {%- if presentation.venue -%}
+                                  &nbsp;{{ presentation.venue.title }}{%- if presentation.venue.address.city -%}, {{ presentation.venue.address.city }}{%- endif -%}{%- if presentation.venue.address.state -%}, {{ presentation.venue.address.state }}{%- endif -%}{%- if presentation.venue.address.country -%}, {{ presentation.venue.address.country }}{%- endif -%}
+                                {%- endif -%}
+                                </a><br>
+                              {%- endif -%}
+                            {%- endfor -%}
+                          {%- endfor -%}
+                          {%- if ul == true -%}
+                            </ul>
+                            {%- assign ul = false -%}
+                          {%- endif -%}
+                        </div>
+                        <hr>
+                        <p>{{ page.content }}</p>
+
+                        <!--div class="post-categories">
+                            {% if post %}
+                            {% assign categories = page.categories %}
+                            {% else %}
+                            {% assign categories = page.categories %}
+                            {% endif %}
+                            {% for category in categories %}
+                            <a href="{{site.baseurl}}/categories/#{{category|slugize}}">{{category}}</a>
+                            {% unless forloop.last %}&nbsp;{% endunless %}
+                            {% endfor %}
+                        </div-->
+
+
+                        <!--ul class="list-inline item-details">
+                            <li>Date:
+                                <strong><a href="">{{ page.date }}</a>
+                                </strong>
+                            </li>
+                            <li>Publications:
+                                <strong><a href="">{{ page.publications }}</a>
+                                </strong>
+                            </li>
+                            <li>People:
+                                <strong><a href="">{{ page.people }}</a>
+                                </strong>
+                            </li>
+                        </ul-->
+
+                        <a href="{{ site.url }}{{ site.baseurl }}"><button type="button" class="btn btn-default"><i class="fa fa-times"></i> Back</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

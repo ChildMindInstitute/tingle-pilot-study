@@ -1,0 +1,80 @@
+  <footer>
+        <div class="container">
+            <hr>
+            <div class="row">
+              <div class="col-md-4">
+                  <span class="contact-info" style="line-height:0">
+                    {%- assign comma = "by " -%}
+                    {%- for creator in page.created-by -%}
+                      {%- for person in site.categories.person -%}
+                        {%- if person.modal-id == creator -%}
+                          {{- comma -}}
+                          <a href="{{ site.url }}{{ site.baseurl }}{{ person.permalink }}" title="{{- person.name -}}">
+                            {{- person.nick -}}
+                          </a>
+                          {%- assign comma = " & " -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+                    {%- endfor -%}
+                    {{ page.date | date: " %F" }}
+                  </span>
+              </div>
+              <div class="col-md-4">
+                  <span class="contact-info" style="line-height:0">updated
+                    {%- assign comma = " by " -%}
+                    {%- for upd in page.updated -%}
+                      {%- for creator in upd[1].by -%}
+                        {%- for person in site.categories.person -%}
+                          {%- if person.modal-id == creator -%}
+                            {{- comma -}}
+                            <a href="{{ site.url }}{{ site.baseurl }}{{ person.permalink }}" title="{{- person.name -}}">
+                              {{- person.nick -}}
+                            </a>
+                            {%- assign comma = " & " -%}
+                          {%- endif -%}
+                        {%- endfor -%}
+                      {%- endfor -%}
+                      {{ upd[1].date | date: " %F" }}
+                    {%- endfor -%}
+                  </span>
+            </div>
+            <div class="col-md-4">
+            </div>
+          </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <span class="contact-info">Contact: matterlab@childmind.org</span>
+                </div>
+                <div class="col-md-4">
+                    <span class="copyright"> &copy; <a  href="https://www.childmind.org">Child Mind Institute</a> MATTER Lab {{ 'now' | date: "%Y" }}</span>
+                </div>
+                <!--div class="col-md-4">
+                    <ul class="list-inline social-buttons">
+                        {% for network in site.social %}
+                        <li><a href="{{ network.url }}"><i class="fa fa-{{ network.title }}"></i></a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div-->
+                <!--div class="col-md-4">
+                    <ul class="list-inline quicklinks">
+                        <li><a href="#">Privacy Policy</a>
+                        </li>
+                        <li><a href="#">Terms of Use</a>
+                        </li>
+                    </ul>
+                </div-->
+            </div>
+        </div>
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-127993383-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-127993383-1');
+		</script>
+
+    </footer>

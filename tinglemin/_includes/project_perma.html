@@ -1,0 +1,151 @@
+    <div class="project-modal perma-content" id="{{ page.modal-id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+          <a href="{{ site.url }}{{ site.baseurl }}">
+          <div class="close-modal">
+              <div class="lr">
+                  <div class="rl">
+                  </div>
+              </div>
+          </div>
+          </a>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <a href="{{ site.baseurl }}{{ page.permalink }}">
+                              <h2 class="modal-center">{{ page.title }}</h2>
+                            </a>
+                            <h4 class="modal-center">{{ page.subtitle }}</h4>
+                            <div class="row">
+                              <center>
+                                <div class=lass="flexBox" style="display:flex;flex-flow:row wrap;justify-content:center;">
+                                {%- for people in page.people -%}
+                                  {%- for person in site.categories.person -%}
+                                    {%- if person.modal-id == people -%}
+                                    <div class="col-xs-4 glyphs" style="width:45px;padding:0;">
+                                      <a href="{{ site.url }}{{ site.baseurl }}{{ person.permalink }}">
+                                        <img src="{{ site.url }}{{ site.baseurl}}/assets/img/people/{{- person.thumbnail -}}" alt="{{- person.name -}}" title="{{- person.name -}}"/>
+                                      </a>
+                                    </div>
+                                    {%- endif -%}
+                                  {%- endfor -%}
+                                {%- endfor -%}
+                                </div>
+                              </center>
+                            </div>
+                            <div class="row">
+                              <center>
+                                <div class="flexBox" style="display:flex;flex-flow:row wrap;justify-content:center;">
+                                  {%- for people in page.additional-people -%} {%- assign nopage = true -%} {%- for person in site.categories.person -%} {%- if person.modal-id == people -%} {%- assign nopage = false -%}
+                                  <div class="col-xs-4 glyphs" style="width:45px;padding:0;">
+                                    <a href="{{ site.url }}{{ site.baseurl }}{{ person.permalink }}">
+                                      <img src="{{ site.url }}{{ site.baseurl }}/assets/img/people/{{- person.thumbnail -}}" alt="{{- person.name -}}" title="{{- person.name -}}" />
+                                    </a>
+                                  </div>
+                                  {%- endif -%} {%- endfor -%} {%- if nopage == true -%} {%- if nopagepeople == true -%} {%- assign nopagepeople = people | split: ' ' -%} {%- else -%} {%- assign nopageperson = people | split: ' ' -%} {%- assign nopagepeople = nopagepeople | concat: nopageperson
+                                  -%} {%- endif -%} {%- endif -%} {%- endfor -%} {%- for person in nopagepeople -%}
+                                  <div class="col-xs-4 glyphs" style="width:45px;padding:0;">
+                                    {% assign person_name = person | split: '-' %}
+                                    {% capture cased_name %}{% for word in person_name %}{% if word contains "mc" %}{{ word | replace: "mc", "" | capitalize | prepend: "Mc" }} {% else %}{{ word | capitalize }} {% endif %}{% endfor %}{% endcapture %}
+                                    <img src="{{ site.url }}{{ site.baseurl }}/assets/img/people/ada-thumbnail.jpg" alt="{{- cased_name | strip -}}" title="{{- cased_name | strip -}}" />
+                                  </div>
+                                  {%- endfor -%}
+                                </div>
+                              </center>
+                            </div>
+                            <hr class="star-primary">
+                            {% if img-link %}
+                            <a href="{{ page.img-link }}" target="_blank">
+                            {% endif %}
+                            {% if vid %}
+                            <video id="{{ page.modal-id }}-vid" class="img-responsive img-centered" alt="{{ page.alt }}" autoplay="autoplay">
+                              <source src="assets/vid/projects/{{ page.vid }}.webm" type="video/webm"></source>
+                              <source src="assets/vid/projects/{{ page.vid }}.mp4" type="video/mp4"></source>
+                              <source src="assets/vid/projects/{{ page.vid }}.ogv" type="video/ogv"></source>
+                            </video>
+                            {% else %}
+                            <img src="assets/img/projects/{{ page.img }}" class="img-responsive img-centered" alt="{{ page.alt }}">
+                            {% endif %}
+                            {% if img-link %}
+                            </a>
+                            {% endif %}
+                            <h3>{{ page.description }}</h3>
+                            {%- assign related-posts = false -%}
+                            {%- assign allposts = site.categories.blog | concat: site.categories.presentations -%}
+                            {%- for post in allposts -%}
+                              {%- for post-project in post.projects -%}
+                                {%- if post-project == page.modal-id -%}
+                                  {%- if related-posts == false -%}
+                                    <div class="row">
+                                      <h5>Related post(s)</h5>
+                                      <ul>
+                                    {%- assign related-posts = true -%}
+                                  {%- endif -%}
+                                  <li><a href="{{ site.url }}{{ site.baseurl }}{{ post.permalink }}">{{ post.title }}</a></li>
+                                {%- endif -%}
+                              {%- endfor -%}
+                            {%- endfor -%}
+                            {%- if related-posts == true -%}
+                                </ul>
+                              </div>
+                            {%- endif -%}
+                            {% if page.github %}
+                              <div class="row github-container">
+                              <h5>Code</h5>
+                              {%- for gh in page.github -%}
+                                  <div class="col-sm-12 col-xs-12 glyphs"><a href="{{ gh[1].url }}">
+                                    <img src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/GitHub-Mark/PNG/GitHub-Mark-32px.png" alt="octocat"/><span class='github-name'>{{ gh[1].name }}</span>
+                                  </a></div>
+                              {%- endfor -%}
+                              </div>
+                            {% endif %}
+                            <hr>
+                            <p>{{ page.content }}</p>
+
+                            <!--div class="post-categories">
+                                {% if post %}
+                                {% assign categories = categories %}
+                                {% else %}
+                                {% assign categories = page.categories %}
+                                {% endif %}
+                                {% for category in categories %}
+                                <a href="{{site.baseurl}}/categories/#{{category|slugize}}">{{category}}</a>
+                                {% unless forloop.last %}&nbsp;{% endunless %}
+                                {% endfor %}
+                            </div-->
+
+
+                            <!--ul class="list-inline item-details">
+                                <li>Date:
+                                    <strong><a href="">{{ date }}</a>
+                                    </strong>
+                                </li>
+                                <li>Publications:
+                                    <strong><a href="">{{ publications }}</a>
+                                    </strong>
+                                </li>
+                                <li>People:
+                                    <strong><a href="">{{ people }}</a>
+                                    </strong>
+                                </li>
+                            </ul-->
+                            {% if page.publication %}
+                            <div class="project_pub_div">
+                               <h3>
+                               {% if page.publication-url %}
+                               <a href="{{ page.publication-url }}">
+                               {% endif %}
+                               {{ page.publication }}
+                               {% if page.publication-url %}
+                               </a>
+                               {% endif %}
+                               </h3>
+                            </div>
+                            {% endif %}
+                            <a href="{{ site.url }}{{ site.baseurl }}"><button type="button" class="btn btn-default"><i class="fa fa-times"></i> Back</button></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

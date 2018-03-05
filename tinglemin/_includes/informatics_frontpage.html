@@ -1,0 +1,42 @@
+<!-- Project Grid Section -->
+    <section id="informatics" class="bg-light-gray">
+        <div class="container">
+
+            <!-- INFORMATICS PROJECTS -->
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <a href="{{ site.baseurl }}/informatics">
+                        <h2 class="section-heading text-center">Informatics Tools</h2>
+                    </a>
+                    <h3 class="section-subheading text-muted">
+                        We are constructing a mental health database that contains questions
+                        from over 80 mental health questionnaires, all of the symptoms from
+                        diagnostic psychiatry manuals such as the DSM-5, and information about
+                        technologies related to mental health.
+                        Below are a few projects that make use of this database.
+                    </h3>
+                </div>
+            </div>
+            <div class="row">
+                {% for post in site.categories.informatics %}
+                {% if post.frontpage %}
+                <div class="col-md-4 col-sm-6 project-item">
+                    <a href="{{ site.baseurl }}/{{ post.modal-id }}" id="{{ post.modal-id }}-informatics" class="project-link" data-toggle="modal">
+                        <div class="project-hover">
+                            <div class="project-hover-content">
+                                <i class="fa fa-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="assets/img/projects/{{ post.thumbnail }}" class="img-responsive img-centered" alt="{{ post.alt }}">
+                    </a>
+                    <div class="project-caption">
+                        <a href="{{ site.baseurl }}/{{ post.modal-id }}" id="{{ post.modal-id }}-device" class="project-link" data-toggle="modal"><h4>{{ post.title }}</h4></a>
+                        <p class="text-muted">{{ post.subtitle }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+        </div>
+    </section>

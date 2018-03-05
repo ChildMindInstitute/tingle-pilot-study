@@ -1,0 +1,112 @@
+ <!-- Project //for post in site.posts// -->
+ {% for post in site.categories.project %}
+    <div class="project-modal modal fade" id="{{ post.modal-id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <a href="{{ site.baseurl }}{{ post.permalink }}">
+                              <h2 class="modal-center">{{ post.title }}</h2>
+                            </a>
+                            <h4 class="modal-center">{{ post.subtitle }}</h4>
+                            <div class="row">
+                              <center>
+                                <div class="flexBox" style="display:flex;flex-flow:row wrap;justify-content:center;">
+                                {%- for people in post.people -%}
+                                  {%- for person in site.categories.person -%}
+                                    {%- if person.modal-id == people -%}
+                                    <div class="col-xs-4 glyphs" style="width:45px;padding:0;">
+                                      <a href="{{ site.url }}{{ site.baseurl }}{{ person.permalink }}">
+                                        <img src="assets/img/people/{{- person.thumbnail -}}" alt="{{- person.name -}}" />
+                                      </a>
+                                    </div>
+                                    {%- endif -%}
+                                  {%- endfor -%}
+                                {%- endfor -%}
+                                </div>
+                              </center>
+                            </div>
+                            <hr class="star-primary">
+                            {% if post.img-link %}
+                            <a href="{{ post.img-link }}" target="_blank">
+                            {% endif %}
+                            {% if post.vid %}
+                            <video id="{{ post.modal-id }}-vid" class="img-responsive img-centered" alt="{{ post.alt }}" autoplay="autoplay">
+                              <source src="assets/vid/projects/{{ post.vid }}.webm" type="video/webm"></source>
+                              <source src="assets/vid/projects/{{ post.vid }}.mp4" type="video/mp4"></source>
+                              <source src="assets/vid/projects/{{ post.vid }}.ogv" type="video/ogv"></source>
+                            </video>
+                            {% else %}
+                            <img src="assets/img/projects/{{ post.img }}" class="img-responsive img-centered" alt="{{ post.alt }}">
+                            {% endif %}
+                            {% if post.img-link %}
+                            </a>
+                            {% endif %}
+                            <h4>{{ post.description }}</h4>
+                            {% if post.github %}
+                              <div class="row github-container">
+                              {%- for gh in post.github -%}
+                                  <div class="col-sm-12 col-xs-12 glyphs"><a href="{{ gh[1].url }}">
+                                    <img src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/GitHub-Mark/PNG/GitHub-Mark-32px.png" alt="octocat"/><span class='github-name'>{{ gh[1].name }}</span>
+                                  </a></div>
+                              {%- endfor -%}
+                              </div>
+                            {% endif %}
+                            <hr>
+                            <p>{{ post.content }}</p>
+
+                            <!--div class="post-categories">
+                                {% if post %}
+                                {% assign categories = post.categories %}
+                                {% else %}
+                                {% assign categories = page.categories %}
+                                {% endif %}
+                                {% for category in categories %}
+                                <a href="{{site.baseurl}}/categories/#{{category|slugize}}">{{category}}</a>
+                                {% unless forloop.last %}&nbsp;{% endunless %}
+                                {% endfor %}
+                            </div-->
+
+
+                            <!--ul class="list-inline item-details">
+                                <li>Date:
+                                    <strong><a href="">{{ post.date }}</a>
+                                    </strong>
+                                </li>
+                                <li>Publications:
+                                    <strong><a href="">{{ post.publications }}</a>
+                                    </strong>
+                                </li>
+                                <li>People:
+                                    <strong><a href="">{{ post.people }}</a>
+                                    </strong>
+                                </li>
+                            </ul-->
+                            {% if post.publication %}
+                            <div class="project_pub_div">
+                               <h3>
+                               {% if post.publication-url %}
+                               <a href="{{ post.publication-url }}">
+                               {% endif %}
+                               {{ post.publication }}
+                               {% if post.publication-url %}
+                               </a>
+                               {% endif %}
+                               </h3>
+                            </div>
+                            {% endif %}
+                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

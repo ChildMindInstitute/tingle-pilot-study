@@ -1,0 +1,101 @@
+<!-- Person //for post in site.posts// -->
+{% for post in site.categories.person %}
+<div class="project-modal modal fade" id="{{ post.modal-id }}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-content">
+        <div class="close-modal" data-dismiss="modal">
+            <div class="lr">
+                <div class="rl">
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                    <div class="modal-body">
+                        <div class="row justify-content-start">
+                          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <a href="{{ site.baseurl }}{{ post.permalink }}"><img src="assets/img/people/{{ post.img }}" class="img-responsive" alt="{{ post.alt }}"></a>
+                            <a href="{{ site.baseurl }}{{ post.permalink }}"><h2>{{ post.name }}</h2></a>
+                            {% if post.description %}
+                            {{ post.description }}
+                            {% endif %}
+                            {% if post.title1 %}
+                            <p class="no-space-above-below text-muted">{{ post.title1 }}</p>
+                            {% endif %}
+                            {% if post.title2 %}
+                            <p class="no-space-above-below text-muted">{{ post.title2 }}</p>
+                            {% endif %}
+                            {% if post.title3 %}
+                            <p class="no-space-above-below text-muted">{{ post.title3 }}</p>
+                            {% endif %}
+                            {% if post.website %}
+                            <p class="no-space-above-below text-muted"><a href="{{ post.website }}">{{ post.website }}</a></p>
+                            {% endif %}
+                            {% if post.email %}
+                            <p class="no-space-above-below text-muted">{{ post.email }}</p>
+                            {% endif %}
+                            {% if post.phone %}
+                            <p class="no-space-above-below text-muted">{{ post.phone }}</p>
+                            {% endif %}
+                          </div>
+                          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              {% assign cats = "device, app, informatics, voice" | split: ", " %}
+                              {%- for category in cats -%}
+                              <div class="row justify-content-start">
+                              {%- for project in site.categories.project -%}
+                              {%- for people in project.people -%}
+                              {%- if (post.modal-id == people) and (project.categories contains category) -%}
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                                <a href="{{ site.url }}{{ site.baseurl }}{{ project.permalink }}">
+                                  <img src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/{{- project.glyph -}}" />
+                                  <span class="github-name">{{- project.title -}}</span>
+                                </a>
+                              </div>
+                              {%- endif -%}
+                              {%- endfor -%}
+                              {%- endfor -%}
+                              </div>
+                              {%- endfor -%}
+                            </div>
+                          </div>
+                        <hr>
+                        <p>{{ post.content }}</p>
+
+                        <!--div class="post-categories">
+                            {% if post %}
+                            {% assign categories = post.categories %}
+                            {% else %}
+                            {% assign categories = page.categories %}
+                            {% endif %}
+                            {% for category in categories %}
+                            <a href="{{site.baseurl}}/categories/#{{category|slugize}}">{{category}}</a>
+                            {% unless forloop.last %}&nbsp;{% endunless %}
+                            {% endfor %}
+                        </div-->
+
+
+                        <!--ul class="list-inline item-details">
+                            <li>Date:
+                                <strong><a href="">{{ post.date }}</a>
+                                </strong>
+                            </li>
+                            <li>Publications:
+                                <strong><a href="">{{ post.publications }}</a>
+                                </strong>
+                            </li>
+                            <li>People:
+                                <strong><a href="">{{ post.people }}</a>
+                                </strong>
+                            </li>
+                        </ul-->
+
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Back</button>
+
+                      </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

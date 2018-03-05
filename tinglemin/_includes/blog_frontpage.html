@@ -1,0 +1,57 @@
+<!-- Project Grid Section -->
+    <section id="blog" class="bg-light-gray">
+        <div class="container">
+
+            <!-- BLOG PROJECTS -->
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <a href="{{ site.baseurl }}/blog">
+                        <h2 class="section-heading text-center">Blog</h2>
+                    </a>
+                    <h3 class="section-subheading text-muted">
+                        News, Tutorials, Explorations
+                    </h3>
+                </div>
+            </div>
+            {% assign blogcount = 0 %}
+            {% for post in site.categories.blog %}
+              {% if post.frontpage %}
+                {% assign blogcount = blogcount | plus: 1 %}
+                {% assign counttracker = blogcount | modulo: 3 %}
+                {% if counttracker == 1 %}
+                <div class="row">
+                {% endif %}
+                <div class="col-md-4 col-sm-6 project-item">
+                    <a href="{{ site.url }}{{ site.baseurl }}/{{ post.permalink }}" id="{{ post.modal-id }}-blog" class="project-link" data-toggle="modal">
+                        <div class="project-hover">
+                            <div class="project-hover-content">
+                                <i class="fa fa-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="assets/img/projects/{{ post.thumbnail }}" class="img-responsive img-centered" alt="{{ post.alt }}">
+                    </a>
+                    <div class="project-caption">
+                        <a href="{{ site.url }}{{ site.baseurl }}/{{ post.permalink }}" id="{{ post.modal-id }}-blog-caption" class="project-link" data-toggle="modal"><h4>{{ post.title }}</h4></a>
+                        <p class="text-muted">{% if post.venue %}
+                          {%- assign comma = "" -%}
+                          {% if post.venue.title %}{{ post.venue.title }}{%- assign comma = ", " %}{% endif %}
+                          {%- if post.venue.address.city -%}{{- comma -}}{%- assign comma = ", " %}{{ post.venue.address.city }}{%- endif -%}
+                          {%- if post.venue.address.state -%}{{- comma -}}{%- assign comma = ", " %}{{ post.venue.address.state }}{%- endif -%}
+                          {%- if post.venue.address.country -%}{{- comma -}}{%- assign comma = ", " %}{{ post.venue.address.country }}{%- endif -%}
+                        {% endif %}
+                        {{ post.subtitle }}
+                        {{ post.date | date: "<br>%A, %B %e, %Y" }}
+                        {{ post.time | date: "<br>%l:%M%P %Z (UTC %z)"}}
+                        </p>
+                    </div>
+                  </div>
+                {% if counttracker == 0 %}
+                </div>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% if counttracker > 0 %}
+            </div>
+            {% endif %}
+        </div>
+    </section>

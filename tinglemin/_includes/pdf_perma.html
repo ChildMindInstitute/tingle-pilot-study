@@ -1,0 +1,175 @@
+    <div class="pdf-modal perma-content" id="{{ page.modal-id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+          <a href="{{ site.url }}{{ site.baseurl }}">
+          <div class="close-modal">
+              <div class="lr">
+                  <div class="rl">
+                  </div>
+              </div>
+          </div>
+          </a>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <a href="{{ site.baseurl }}{{ page.permalink }}">
+                              <h2 class="modal-center">{{ page.title }}</h2>
+                            </a>
+                            {%- if page.date -%}
+                              <h5 class="modal-center">{{- page.date | date: "%A, %B %e, %Y" -}}{% if page.time %}
+                                &nbsp;{{- page.time | date: "%l:%M %P %Z (UTC %z)" -}}
+                              {% endif %}</h5>
+                            {%- endif -%}
+                            {%- if page.venue -%}
+                              {%- if page.venue.url -%}
+                                <a href="{{ page.venue.url }}" target="_blank">
+                              {%- endif -%}
+                              <h4 class="modal-center">{{ page.venue.title }}</h4>
+                              {%- if page.venue.url -%}
+                                </a>
+                              {%- if page.venue.address -%}
+                              {%- assign comma = "" -%}
+                              <p class="modal-center">
+                              {%- if page.venue.address.street -%}{{- comma -}}{%- assign comma = ", " %}{{ page.venue.address.street }}{%- endif -%}
+                              {%- if page.venue.address.room -%}{{- comma -}}{%- assign comma = ", " %}{{ page.venue.address.room }}{%- endif -%}
+                              {%- if page.venue.address.city -%}{{- comma -}}{%- assign comma = ", " %}{{ page.venue.address.city }}{%- endif -%}
+                              {%- if page.venue.address.state -%}{{- comma -}}{%- assign comma = ", " %}{{ page.venue.address.state }}{%- endif -%}
+                              {%- if page.venue.address.country -%}{{- comma -}}{%- assign comma = ", " %}{{ page.venue.address.country }}{%- endif -%}
+                              </p>
+                              {%- endif -%}
+                              {%- endif -%}
+                            {%- endif -%}
+                            {%- if page.doi -%}
+                            <a href="https://dx.doi.org/{{- page.doi -}}">doi:{{- page.doi -}}</a>
+                            {%- endif -%}
+                            <div class="row">
+                              <center>
+                                <div class="flexBox" style="display:flex;flex-flow:row wrap;justify-content:center;">
+                                {%- for people in page.people -%}
+                                  {%- for person in site.categories.person -%}
+                                    {%- if person.modal-id == people -%}
+                                    <div class="col-xs-4 glyphs" style="width:45px;padding:0;">
+                                      <a href="{{ site.url }}{{ site.baseurl }}{{ person.permalink }}">
+                                        <img src="{{ site.url }}{{ site.baseurl }}/assets/img/people/{{- person.thumbnail -}}" alt="{{- person.name -}}" title="{{- person.name -}}" />
+                                      </a>
+                                    </div>
+                                    {%- endif -%}
+                                  {%- endfor -%}
+                                {%- endfor -%}
+                                </div>
+                              </center>
+                            </div>
+                            <div class="row">
+                              <center>
+                                <div class="flexBox" style="display:flex;flex-flow:row wrap;justify-content:center;">
+                                  {%- for people in page.additional-people -%} {%- assign nopage = true -%} {%- for person in site.categories.person -%} {%- if person.modal-id == people -%} {%- assign nopage = false -%}
+                                  <div class="col-xs-4 glyphs" style="width:45px;padding:0;">
+                                    <a href="{{ site.url }}{{ site.baseurl }}{{ person.permalink }}">
+                                      <img src="{{ site.url }}{{ site.baseurl }}/assets/img/people/{{- person.thumbnail -}}" alt="{{- person.name -}}" title="{{- person.name -}}" />
+                                    </a>
+                                  </div>
+                                  {%- endif -%} {%- endfor -%} {%- if nopage == true -%} {%- if nopagepeople == true -%} {%- assign nopagepeople = people | split: ' ' -%} {%- else -%} {%- assign nopageperson = people | split: ' ' -%} {%- assign nopagepeople = nopagepeople | concat: nopageperson
+                                  -%} {%- endif -%} {%- endif -%} {%- endfor -%} {%- for person in nopagepeople -%}
+                                  <div class="col-xs-4 glyphs" style="width:45px;padding:0;">
+                                    {% assign person_name = person | split: '-' %}
+                                    {% capture cased_name %}{% for word in person_name %}{% if word contains "mc" %}{{ word | replace: "mc", "" | capitalize | prepend: "Mc" }} {% else %}{{ word | capitalize }} {% endif %}{% endfor %}{% endcapture %}
+                                    <img src="{{ site.url }}{{ site.baseurl }}/assets/img/people/ada-thumbnail.jpg" alt="{{- cased_name | strip -}}" title="{{- cased_name | strip -}}" />
+                                  </div>
+                                  {%- endfor -%}
+                                </div>
+                              </center>
+                            </div>
+                            {%- assign related-projects = false -%}
+                            {%- assign allposts = site.categories.project | concat: site.categories.blog | concat: site.categories.presentations -%}
+                            {%- for project in allposts -%}
+                              {%- for pdf-project in page.projects -%}
+                                {%- if project.modal-id == pdf-project -%}
+                                  {%- if related-projects == false -%}
+                                    <div class="row">
+                                      <h5>Related project(s)</h5>
+                                    {%- assign related-projects = true -%}
+                                  {%- endif -%}
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 glyphs">
+                                  <a href="{{ site.url }}{{ site.baseurl }}{{ project.permalink }}">
+                                    {%- if project.glyph -%}
+                                      <img src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/{{- project.glyph -}}" alt="{{- project.title -}}"/>
+                                    {%- else -%}
+                                      <img src="{{ site.url }}{{ site.baseurl }}/assets/img/projects/{{- project.thumbnail -}}" alt="{{- project.title -}}"/>
+                                    {%- endif -%}
+                                    <span class="github-name">{{- project.title -}}</span>
+                                  </a>
+                                </div>
+                                {%- endif -%}
+                              {%- endfor -%}
+                            {%- endfor -%}
+                            {%- if related-projects == true -%}
+                              </div>
+                            {%- endif -%}
+                            <hr class="star-primary">
+                            {% if page.img-link %}
+                            <a href="{{ page.img-link }}" target="_blank">
+                            {% endif %}
+                            {% if page.vid %}
+                            <video id="{{ page.modal-id }}-vid" class="img-responsive img-centered" alt="{{ page.alt }}" autoplay="autoplay">
+                              <source src="{{ site.url }}{{ site.baseurl }}/assets/vid/pdf/{{ page.vid }}.webm" type="video/webm"></source>
+                              <source src="{{ site.url }}{{ site.baseurl }}/assets/vid/pdf/{{ page.vid }}.mp4" type="video/mp4"></source>
+                              <source src="{{ site.url }}{{ site.baseurl }}/assets/vid/pdf/{{ page.vid }}.ogv" type="video/ogv"></source>
+                            </video>
+                            {% elsif page.img %}
+                            <img src="{{ site.url }}{{ site.baseurl }}/assets/img/projects/{{ page.img }}" class="img-responsive img-centered" alt="{{ page.alt }}">
+                            {% endif %}
+                            {% if page.img-link %}
+                            </a>
+                            <hr>
+                            {% endif %}
+                            {% if page.github %}
+                              <div class="row github-container">
+                              {%- for gh in page.github -%}
+                                  <div class="col-sm-12 col-xs-12 glyphs"><a href="{{ gh[1].url }}">
+                                    <img src="{{ site.url }}{{ site.baseurl }}/assets/img/glyphs/GitHub-Mark/PNG/GitHub-Mark-32px.png" alt="octocat"/><span class='github-name'>{{ gh[1].name }}</span>
+                                  </a></div>
+                              {%- endfor -%}
+                              </div>
+                            {% endif %}
+                            {%- if page.content -%}
+                            <p>{{ page.content }}</p>
+                            {%- endif -%}
+                            {%- if page.pdf -%}
+                              {%- for pdf-document in page.pdf %}
+                                <iframe style="width:100%;height:785px;" src="{{ site.url }}{{ site.baseurl }}/assets/pdf/{{- pdf-document -}}.pdf"></iframe>
+                              {%- endfor -%}
+                            {%- endif -%}
+                            <!--div class="post-categories">
+                                {% if post %}
+                                {% assign categories = categories %}
+                                {% else %}
+                                {% assign categories = page.categories %}
+                                {% endif %}
+                                {% for category in categories %}
+                                <a href="{{site.baseurl}}/categories/#{{category|slugize}}">{{category}}</a>
+                                {% unless forloop.last %}&nbsp;{% endunless %}
+                                {% endfor %}
+                            </div-->
+
+
+                            <!--ul class="list-inline item-details">
+                                <li>Date:
+                                    <strong><a href="">{{ date }}</a>
+                                    </strong>
+                                </li>
+                                <li>Publications:
+                                    <strong><a href="">{{ publications }}</a>
+                                    </strong>
+                                </li>
+                                <li>People:
+                                    <strong><a href="">{{ people }}</a>
+                                    </strong>
+                                </li>
+                            </ul-->
+                            <a href="{{ site.url }}{{ site.baseurl }}"><button type="button" class="btn btn-default"><i class="fa fa-times"></i> Back</button></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

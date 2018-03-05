@@ -1,0 +1,37 @@
+<!-- Project Grid Section -->
+    <section id="voice" class="bg-light-gray">
+        <div class="container">
+
+            <!-- VOICE ANALYSIS PROJECTS -->
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <a href="{{ site.baseurl }}/voice">
+                        <h2 class="section-heading text-center">Voice Analysis</h2>
+                    </a>
+                    <h3 class="section-subheading text-muted">
+                        We are interested in all levels of voice analysis as they relate
+                        to mental health, from low-level voice features to high-level syntax
+                        and semantics of speech.
+                    </h3>
+                </div>
+            </div>
+            <div class="row">
+                {% for post in site.categories.voice %}
+                <div class="col-md-4 col-sm-6 project-item">
+                    <a href="{{ site.baseurl }}/{{ post.modal-id }}" id="{{ post.modal-id }}-voice" class="project-link" data-toggle="modal">
+                        <div class="project-hover">
+                            <div class="project-hover-content">
+                                <i class="fa fa-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="assets/img/projects/{{ post.thumbnail }}" class="img-responsive img-centered" alt="{{ post.alt }}">
+                    </a>
+                    <div class="project-caption">
+                        <a href="{{ site.baseurl }}/{{ post.modal-id }}" id="{{ post.modal-id }}-device" class="project-link" data-toggle="modal"><h4>{{ post.title }}</h4></a>
+                        <p class="text-muted">{{ post.subtitle }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>

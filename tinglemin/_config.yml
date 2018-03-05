@@ -1,0 +1,26 @@
+url: https://matter.childmind.org
+# baseurl: /matter-website
+
+# Site settings
+title: MATTER Lab
+email: arno@childmind.org
+# The description will appear in document head meta and in feed.xml site description.
+description: "The MATTER Lab builds and applies technologies such as wearable devices,
+smartphone apps, and online informatics and analysis tools to help track and improve
+learning and mental health. The lab is part of the Child Mind Institute."
+
+# Postal address (add as many lines as necessary)
+address:
+  - line: 101 E 56 St
+  - line: NY, NY 10022
+
+# Build settings
+markdown: kramdown
+permalink: "{{ site.baseurl }}/:slug/"
+
+# Plugin gem(s)
+plugins:
+  - jekyll-redirect-from
+
+# Allow futuredated pages
+future: true
