@@ -9,7 +9,12 @@ import pandas as pd
 import os
 
 
-def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com/", notes=False):
+def load_from_firebase(
+    dbURL="https://tingle-pilot-collected-data.firebaseio.com/",
+    notes=False,
+    start=None,
+    stop=None
+):
     """
     Function to load data from Firebase.
     Requires [Firebase service account credentials](https://console.firebase.google.com/project/tingle-pilot-collected-data/settings/serviceaccounts/adminsdk)
@@ -29,7 +34,13 @@ def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com
         Pandas DataFrame of data from Firebase
         
     notes : DataFrame (optional)
-        Pandas DataFrame of notes from Firebase iff parameter notes==True
+        Pandas DataFrame of notes from Firebase iff parameter notes==True,
+        
+    start : date or datetime (optional)
+        start time of data to include (eg, `datetime.date(2016,3,6)`)
+        
+    stop : date or datetime (optional)
+        stop time of data to include (eg, `datetime.date(2016,3,6)`)
     """
     # Fetch the service account key JSON file contents
     try:
@@ -106,6 +117,22 @@ def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com
     data["human-readable timestamp"] = pd.to_datetime(
         data["timestamp"]*1000000
     )
+    stop = start + datetime.timedelta(days=1) if (
+        (start) and 
+        (stop == start)
+    ) else stop
+    data = data[
+            (data["human-readable timestamp"] >= start) &
+            (data["human-readable timestamp"] <= stop)
+        ] if (start and stop) else data[
+            data["human-readable timestamp"] >= start
+        ] if start else data[
+            data["human-readable timestamp"] <= stop
+        ] if stop else data
+    data.sort_values(
+        "timestamp",
+        inplace=True
+    )
     print(stylize(
         "Data loaded from Firebase!",
         colored.fg(
@@ -124,7 +151,21 @@ def load_from_firebase(dbURL="https://tingle-pilot-collected-data.firebaseio.com
             ] for k, v in d.items()
         }
         notes = pd.DataFrame([{
-            k if k!= "lastsample" else "timestamp": notesBatches[i][k] if k != "lastsample" else notesBatches[i][k]["timestamp"] if "timestamp" in notesBatches[i][k] else None for k in [
+            k if k!= "lastsample" else "timestamp": notesBatches[
+                i
+            ][
+                k
+            ] if k != "lastsample" else notesBatches[
+                i
+            ][
+                k
+            ][
+                "timestamp"
+            ] if "timestamp" in notesBatches[
+                i
+            ][
+                k
+            ] else None for k in [
                 "notes",
                 "lastsample",
                 "username"
