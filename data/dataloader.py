@@ -5,15 +5,88 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from itertools import chain
+import numpy as np
 import pandas as pd
 import os
+
+
+def combine_coordinators(data):
+    """
+    Function to combine coordinator rows from 2 to 1.
+    Warning! This function is brute-force and slow (~O(n)). 
+    
+    Parameter
+    ---------
+    data : DataFrame
+        DataFrame with separate coordinator rows
+        
+    Returns
+    -------
+    data : DataFrame
+        DataFrame with combined coordinator rows
+    """
+    data["coordinator2"] = pd.Series()
+    for i, row in data.iterrows():
+        if row.name > 0:
+            if row.thermopile1 != False:
+                data.loc[
+                    row.name,
+                    "coordinator1"
+                ] = data.loc[
+                    row.name,
+                    "ontarget"
+                ]
+                j = 1
+                while(
+                    row.timestamp - data.loc[
+                        row.name - j,
+                        "timestamp"
+                    ] <= 150
+                ):
+                    if np.isnan(
+                        data.loc[
+                            row.name,
+                            "coordinator2"
+                        ]
+                    ):
+                        data.loc[
+                            row.name,
+                            "coordinator2"
+                        ] = data.loc[
+                            row.name - j,
+                            "ontarget"
+                        ]
+                        data.loc[
+                            row.name,
+                            "secondCoordinator"
+                        ] = data.loc[
+                            row.name - j,
+                            "coordinator"
+                        ]
+                        data.loc[
+                            row.name,
+                            "ontarget"
+                        ] = data.loc[
+                            row.name,
+                            "ontarget"
+                        ] if data.loc[
+                            row.name,
+                            "coordinator1"
+                        ] == data.loc[
+                            row.name,
+                            "coordinator2"
+                        ] else False
+                    j = j + 1
+    return(data)
 
 
 def load_from_firebase(
     dbURL="https://tingle-pilot-collected-data.firebaseio.com/",
     notes=False,
     start=None,
-    stop=None
+    stop=None,
+    combine=False,
+    marked=False
 ):
     """
     Function to load data from Firebase.
@@ -28,6 +101,18 @@ def load_from_firebase(
     notes : Boolean (optional)
         Return notes as well as data?
         
+    start : date or datetime (optional)
+        start time of data to include (eg, `datetime.date(2018,3,6)`)
+        
+    stop : date or datetime (optional)
+        stop time of data to include (eg, `datetime.date(2018,3,6)`)
+        
+    combine : Boolean (optional)
+        combine coordinators into a single row?
+        
+    marked : Boolean (optional)
+        only include ontarget==True rows?
+        
     Returns
     -------
     data : DataFrame
@@ -35,12 +120,6 @@ def load_from_firebase(
         
     notes : DataFrame (optional)
         Pandas DataFrame of notes from Firebase iff parameter notes==True,
-        
-    start : date or datetime (optional)
-        start time of data to include (eg, `datetime.date(2016,3,6)`)
-        
-    stop : date or datetime (optional)
-        stop time of data to include (eg, `datetime.date(2016,3,6)`)
     """
     # Fetch the service account key JSON file contents
     try:
@@ -90,17 +169,33 @@ def load_from_firebase(
             "adminsdk"
         )
         return(pd.DataFrame())
-
-    # Initialize the app with a service account, granting admin privileges
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': dbURL
-    })
+    try:
+        # Initialize the app with a service account, granting admin privileges
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': dbURL
+        })
+    except ValueError as e:
+        print(e)
     samples = db.reference('samples').get()
     batches = {
         k: v for d in [
             samples[key] for key in samples
         ] for k, v in d.items()
     }
+    for batch in batches:
+        b2 = []
+        for row in batches[batch]['batchedData']:
+            b2.append(
+                {
+                    **row,
+                    'coordinator': batches[
+                        batch
+                    ][
+                        'username'
+                    ]
+                }
+            )
+        batches[batch]['batchedData'] = b2
     data = pd.DataFrame(
         list(
             chain.from_iterable(
@@ -133,6 +228,10 @@ def load_from_firebase(
         "timestamp",
         inplace=True
     )
+    data = data.reset_index(drop=True)
+    data = combine_coordinators(data) if combine else data
+    data = data[data.ontarget == True] if marked else data
+    data = data.reset_index(drop=True)
     print(stylize(
         "Data loaded from Firebase!",
         colored.fg(
@@ -174,40 +273,5 @@ def load_from_firebase(
         notes["human-readable timestamp"] = pd.to_datetime(
             notes["timestamp"]*1000000
         )
+        notes = notes[notes["timestamp"] > 0].sort_values("timestamp")
     return(data, notes)
-
-
-def break_out_blocks(pilot_data):
-    """
-    Function to indicate separate blocks of collected data in an "iteration_block" column.
-    
-    Parameter
-    ---------
-    pilot_data: DataFrame
-    
-    Returns
-    -------
-    pilot_data: DataFrame
-    """
-    on_target_blocks = {}
-    row_indices = []
-    for i, t in enumerate(pilot_data.target):
-        if (i > 0):
-            if(pilot_data.ontarget[i - 1] and not pilot_data.ontarget[i]):
-                if t in on_target_blocks:
-                    on_target_blocks[t][
-                        max(
-                            [k for k in on_target_blocks[t]]
-                        ) + 1
-                    ] = row_indices
-                else:
-                    on_target_blocks[t] = {}
-                    on_target_blocks[t][1] = row_indices
-                row_indices = []
-            elif(pilot_data.ontarget[i]):
-                row_indices.append(i)
-    for target in on_target_blocks:
-        for block in on_target_blocks[target]:
-            for row in on_target_blocks[target][block]:
-                pilot_data.loc[row, "iteration_block"] = block
-    return(pilot_data)
