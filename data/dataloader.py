@@ -275,3 +275,44 @@ def load_from_firebase(
         )
         notes = notes[notes["timestamp"] > 0].sort_values("timestamp")
     return(data, notes)
+
+
+def split_participants(df):
+    """
+    Function to split DataFrame into separate participants
+    
+    Parameter
+    ---------
+    df: DataFrame
+    
+    Returns
+    -------
+    dfs: list of DataFrames
+    """
+    dfs = []
+    rolling = 0 if df.loc[0, "step"] == 1 else None
+    for i, row in df.iterrows():
+        if i > 0:
+            if not rolling:
+                rolling = i if row.step == 1 else None
+            if row.step == 1 and df.loc[i-1, "step"] == 47:
+                dfs.append(
+                    df.loc[
+                        rolling:i,
+                        :
+                    ].reset_index(
+                        drop=True
+                    )
+                )
+                rolling = i
+            if row.step == 47:
+                last_one = i
+    dfs.append(
+        df.loc[
+            rolling:last_one-1,
+            :
+        ].reset_index(
+            drop=True
+        )
+    )
+    return(dfs)
