@@ -77,7 +77,13 @@ def combine_coordinators(data):
                             "coordinator2"
                         ] else False
                     j = j + 1
-    return(data)
+    return(
+        data[
+            data.thermopile1 != False
+        ].reset_index(
+            drop=True
+        )
+    )
 
 
 def load_from_firebase(

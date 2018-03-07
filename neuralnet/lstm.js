@@ -31,7 +31,7 @@ module.exports = {
         rate: nnRate,
         iterations: nnIterations,
         error: nnError,
-        shuffle: true,
+        shuffle: false,
         log: 5,
         cost: Trainer.cost.CROSS_ENTROPY
       });
