@@ -240,6 +240,21 @@ def load_from_firebase(
             notes["timestamp"]*1000000
         )
         notes = notes[notes["timestamp"] > 0].sort_values("timestamp")
+        data = pd.merge(
+            data,
+            notes.set_index(
+                "human-readable timestamp"
+            ).reindex(
+                data["human-readable timestamp"],
+                method="ffill"
+            ).drop(
+                "timestamp",
+                axis=1
+            ).drop_duplicates(),
+            left_on="human-readable timestamp",
+            right_index=True,
+            how="outer"
+        )
     return(data, notes)
 
 
