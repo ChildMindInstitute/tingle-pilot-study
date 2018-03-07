@@ -69,7 +69,7 @@ def dropX(df, X=["X", "x"]):
             &
             (df["human-readable timestamp"] <= row["human-readable timestamp"])          
         ].index
-    return(df.drop(drop))
+    return(df.drop(drop).reset_index())
 
 
 def load_from_firebase(
