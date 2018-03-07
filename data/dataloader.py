@@ -13,7 +13,6 @@ import os
 def combine_coordinators(data):
     """
     Function to combine coordinator rows from 2 to 1.
-    Warning! This function is brute-force and slow (~O(n)). 
     
     Parameter
     ---------
@@ -25,65 +24,16 @@ def combine_coordinators(data):
     data : DataFrame
         DataFrame with combined coordinator rows
     """
-    data["coordinator2"] = pd.Series()
-    for i, row in data.iterrows():
-        if row.name > 0:
-            if row.thermopile1 != False:
-                data.loc[
-                    row.name,
-                    "coordinator1"
-                ] = data.loc[
-                    row.name,
-                    "ontarget"
-                ]
-                j = 1
-                while(
-                    row.timestamp - data.loc[
-                        row.name - j,
-                        "timestamp"
-                    ] <= 150
-                ):
-                    if np.isnan(
-                        data.loc[
-                            row.name,
-                            "coordinator2"
-                        ]
-                    ):
-                        data.loc[
-                            row.name,
-                            "coordinator2"
-                        ] = data.loc[
-                            row.name - j,
-                            "ontarget"
-                        ]
-                        data.loc[
-                            row.name,
-                            "secondCoordinator"
-                        ] = data.loc[
-                            row.name - j,
-                            "coordinator"
-                        ]
-                        data.loc[
-                            row.name,
-                            "ontarget"
-                        ] = data.loc[
-                            row.name,
-                            "ontarget"
-                        ] if data.loc[
-                            row.name,
-                            "coordinator1"
-                        ] == data.loc[
-                            row.name,
-                            "coordinator2"
-                        ] else False
-                    j = j + 1
-    return(
-        data[
-            data.thermopile1 != False
-        ].reset_index(
-            drop=True
-        )
-    )
+    c1 = data[data.thermopile1 != False].set_index("human-readable timestamp")
+    c2 = data[data.thermopile1 == False].set_index("human-readable timestamp")
+    c2 = c2.reindex(c1.index, method="ffill")
+    c1[['firstCoordinator', 'coordinator1']] = c1[['coordinator', 'ontarget']]
+    c2[['secondCoordinator', 'coordinator2']] = c2[['coordinator', 'ontarget']]
+    c2 = c2[['secondCoordinator', 'step', 'coordinator2']].copy()
+    c1.drop(["coordinator", "ontarget"], axis=1, inplace=True)
+    c = pd.concat([c1, c2], axis=1)
+    c["ontarget"] = c[c["coordinator1"] == c["coordinator2"]]["coordinator1"]
+    return(c)
 
 
 def load_from_firebase(
