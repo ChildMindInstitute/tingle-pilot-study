@@ -13,7 +13,6 @@ import os
 def combine_coordinators(data):
     """
     Function to combine coordinator rows from 2 to 1.
-    Warning! This function is brute-force and slow (~O(n)). 
     
     Parameter
     ---------
@@ -25,59 +24,26 @@ def combine_coordinators(data):
     data : DataFrame
         DataFrame with combined coordinator rows
     """
-    data["coordinator2"] = pd.Series()
-    for i, row in data.iterrows():
-        if row.name > 0:
-            if row.thermopile1 != False:
-                data.loc[
-                    row.name,
-                    "coordinator1"
-                ] = data.loc[
-                    row.name,
-                    "ontarget"
-                ]
-                j = 1
-                while(
-                    row.timestamp - data.loc[
-                        row.name - j,
-                        "timestamp"
-                    ] <= 150
-                ):
-                    if np.isnan(
-                        data.loc[
-                            row.name,
-                            "coordinator2"
-                        ]
-                    ):
-                        data.loc[
-                            row.name,
-                            "coordinator2"
-                        ] = data.loc[
-                            row.name - j,
-                            "ontarget"
-                        ]
-                        data.loc[
-                            row.name,
-                            "secondCoordinator"
-                        ] = data.loc[
-                            row.name - j,
-                            "coordinator"
-                        ]
-                        data.loc[
-                            row.name,
-                            "ontarget"
-                        ] = data.loc[
-                            row.name,
-                            "ontarget"
-                        ] if data.loc[
-                            row.name,
-                            "coordinator1"
-                        ] == data.loc[
-                            row.name,
-                            "coordinator2"
-                        ] else False
-                    j = j + 1
-    return(data)
+    c1 = data[data.thermopile1 != False].set_index("human-readable timestamp")
+    c2 = data[data.thermopile1 == False].set_index("human-readable timestamp")
+    c2 = c2.reindex(c1.index, method="ffill")
+    c1[['firstCoordinator', 'coordinator1']] = c1[['coordinator', 'ontarget']]
+    c2[['secondCoordinator', 'step_c2', 'coordinator2']] = c2[['coordinator', 'step', 'ontarget']]
+    c2 = c2[['secondCoordinator', 'step_c2', 'coordinator2']].copy()
+    c1.drop(["coordinator", "ontarget"], axis=1, inplace=True)
+    c = pd.concat([c1, c2], axis=1)
+    c["ontarget"] = c[
+        (c["coordinator1"] == c["coordinator2"])
+        &
+        (c["step"] == c["step_c2"])
+    ]["coordinator1"]
+    c.drop(["step_c2"], axis=1, inplace=True)
+    c["human-readable timestamp"] = pd.to_datetime(
+        c["timestamp"]*1000000
+    )
+    return(
+        c
+    )
 
 
 def load_from_firebase(
@@ -275,3 +241,44 @@ def load_from_firebase(
         )
         notes = notes[notes["timestamp"] > 0].sort_values("timestamp")
     return(data, notes)
+
+
+def split_participants(df):
+    """
+    Function to split DataFrame into separate participants
+    
+    Parameter
+    ---------
+    df: DataFrame
+    
+    Returns
+    -------
+    dfs: list of DataFrames
+    """
+    dfs = []
+    rolling = 0 if df.loc[0, "step"] == 1 else None
+    for i, row in df.iterrows():
+        if i > 0:
+            if not rolling:
+                rolling = i if row.step == 1 else None
+            if row.step == 1 and df.loc[i-1, "step"] == 47:
+                dfs.append(
+                    df.loc[
+                        rolling:i,
+                        :
+                    ].reset_index(
+                        drop=True
+                    )
+                )
+                rolling = i
+            if row.step == 47:
+                last_one = i
+    dfs.append(
+        df.loc[
+            rolling:last_one-1,
+            :
+        ].reset_index(
+            drop=True
+        )
+    )
+    return(dfs)

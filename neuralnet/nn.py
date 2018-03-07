@@ -17,7 +17,7 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
         columns to include as inputs
         
     test_blocks: list of numerics
-        iteration blocks to include
+        steps to include
         
     n_samples: int, optional
         exact number of samples to use
@@ -41,7 +41,7 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
     num_targets = len(targets)
     df = df[
         (df.ontarget) &
-        (df.iteration_block.isin(test_blocks))
+        (df.step.isin(test_blocks))
     ].copy()
     for i, target in enumerate(targets):
         sample_n = 0
@@ -86,7 +86,7 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
         columns to include as inputs
         
     train_blocks: list of numerics
-        iteration blocks to include
+        steps to include
         
     n_samples: int, optional
         exact number of samples to use
@@ -109,7 +109,7 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
     num_targets = len(targets["target"])
     df = df[
         (df.ontarget) &
-        (df.iteration_block.isin(train_blocks))
+        (df.step.isin(train_blocks))
     ].copy()
     for i, target in enumerate(targets["target"]):
         sample_n = 0
@@ -143,7 +143,7 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
             if (
                 (not n_samples)
                 or
-                (sample_n < n_samples)
+                (sample_n < n_samples//3)
             ):
                 on_target.append(
                     {

@@ -6,3 +6,5 @@ derby.log
 metastore_db
 metastore_db/*
 .orig
+*node*
+*package*json
