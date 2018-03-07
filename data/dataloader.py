@@ -28,12 +28,22 @@ def combine_coordinators(data):
     c2 = data[data.thermopile1 == False].set_index("human-readable timestamp")
     c2 = c2.reindex(c1.index, method="ffill")
     c1[['firstCoordinator', 'coordinator1']] = c1[['coordinator', 'ontarget']]
-    c2[['secondCoordinator', 'coordinator2']] = c2[['coordinator', 'ontarget']]
-    c2 = c2[['secondCoordinator', 'step', 'coordinator2']].copy()
+    c2[['secondCoordinator', 'step_c2', 'coordinator2']] = c2[['coordinator', 'step', 'ontarget']]
+    c2 = c2[['secondCoordinator', 'step_c2', 'coordinator2']].copy()
     c1.drop(["coordinator", "ontarget"], axis=1, inplace=True)
     c = pd.concat([c1, c2], axis=1)
-    c["ontarget"] = c[c["coordinator1"] == c["coordinator2"]]["coordinator1"]
-    return(c)
+    c["ontarget"] = c[
+        (c["coordinator1"] == c["coordinator2"])
+        &
+        (c["step"] == c["step_c2"])
+    ]["coordinator1"]
+    c.drop(["step_c2"], axis=1, inplace=True)
+    c["human-readable timestamp"] = pd.to_datetime(
+        c["timestamp"]*1000000
+    )
+    return(
+        c
+    )
 
 
 def load_from_firebase(
