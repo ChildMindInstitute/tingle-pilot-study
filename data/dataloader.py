@@ -46,6 +46,32 @@ def combine_coordinators(data):
     )
 
 
+def dropX(df, X=["X", "x"]):
+    """
+    Function to drop data annotated to drop.
+    
+    Parameters
+    ----------
+    df: DataFrame
+    
+    X: list of strings, optional
+        notes values indicating to drop an iteration
+        
+    Returns
+    -------
+    df: DataFrame
+    """
+    for i, row in df[df["notes"].isin(X)][["step", "human-readable timestamp"]].iterrows():
+        drop = df[
+            (df["step"] == row.step)
+            &
+            (df["human-readable timestamp"] >= row["human-readable timestamp"] - datetime.timedelta(minutes=5))
+            &
+            (df["human-readable timestamp"] <= row["human-readable timestamp"])          
+        ].index
+    return(df.drop(drop))
+
+
 def load_from_firebase(
     dbURL="https://tingle-pilot-collected-data.firebaseio.com/",
     notes=False,
