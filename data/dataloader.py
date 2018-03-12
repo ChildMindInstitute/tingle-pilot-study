@@ -54,6 +54,40 @@ def combine_coordinators(data):
     )
 
 
+def correct_corrections(df, corrections):
+    """
+    Function to correct data entry errors
+    
+    Parameters
+    ----------
+    df: DataFrame
+    
+    corrections: dictionary
+        key: participant number
+        value: dictionary
+            key: column
+            value: corrected value
+    
+    Returns
+    -------
+    df: DataFrame
+        updated
+    """
+    for participant in corrections:
+        for col in corrections[participant]:
+            df.loc[
+                list(
+                    df[
+                        df.participant==int(
+                            participant
+                        )
+                    ].index
+                ),
+                col
+            ] = corrections[participant][col]
+    return(df)
+
+
 def dropX(df, X=["X", "x"]):
     """
     Function to drop data annotated to drop.
@@ -91,6 +125,33 @@ def dropX(df, X=["X", "x"]):
             )
         )
     return(df.drop(drop))
+
+
+def index_participants(df):
+    """
+    Function to index participants
+    
+    Parameter
+    ---------
+    df: DataFrame
+    
+    Returns
+    -------
+    participants_df: DataFrame
+    """
+    participants = {}
+    # initialize as if participant 0 just finished 
+    participant = 0
+    task = 47
+    p_index = []
+    for i, r in df.iterrows():
+        if (r.step == 1) and (task > r.step):
+            participant = participant + 1
+            participants[participant] = r["human-readable timestamp"]
+        task = r.step
+        p_index.append(participant)
+    df["participant"] = p_index
+    return(df)
 
 
 def load_from_firebase(
@@ -332,7 +393,7 @@ def split_participants(df):
         if i > 0:
             if not rolling:
                 rolling = i if row.step == 1 else None
-            if row.step == 1 and df.loc[i-1, "step"] == 47:
+            if row.step == 1 and df.loc[i-1, "step"] > row.step:
                 dfs.append(
                     df.loc[
                         rolling:i,
