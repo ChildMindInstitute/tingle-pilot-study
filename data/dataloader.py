@@ -26,9 +26,17 @@ def combine_coordinators(data):
     """
     c1 = data[data.thermopile1 != False].set_index("human-readable timestamp")
     c2 = data[data.thermopile1 == False].set_index("human-readable timestamp")
-    c2 = c2.reindex(c1.index, method="ffill")
-    c1[['firstCoordinator', 'coordinator1']] = c1[['coordinator', 'ontarget']]
-    c2[['secondCoordinator', 'step_c2', 'coordinator2']] = c2[['coordinator', 'step', 'ontarget']]
+    c2 = c2.drop_duplicates().reindex(
+        c1.drop_duplicates().index,
+        method="ffill",
+        limit=1
+    )
+    c1[['firstCoordinator', 'coordinator1']] = c1[
+        ['coordinator', 'ontarget']
+    ]
+    c2[['secondCoordinator', 'step_c2', 'coordinator2']] = c2[
+        ['coordinator', 'step', 'ontarget']
+    ]
     c2 = c2[['secondCoordinator', 'step_c2', 'coordinator2']].copy()
     c1.drop(["coordinator", "ontarget"], axis=1, inplace=True)
     c = pd.concat([c1, c2], axis=1)
@@ -61,13 +69,19 @@ def dropX(df, X=["X", "x"]):
     -------
     df: DataFrame
     """
-    for i, row in df[df["notes"].isin(X)][["step", "human-readable timestamp"]].iterrows():
+    for i, row in df[df["notes"].isin(X)][
+        ["step", "human-readable timestamp"]
+    ].iterrows():
         drop = df[
             (df["step"] == row.step)
             &
-            (df["human-readable timestamp"] >= row["human-readable timestamp"] - datetime.timedelta(minutes=5))
+            (df["human-readable timestamp"] >= row[
+                "human-readable timestamp"
+            ] - datetime.timedelta(minutes=5))
             &
-            (df["human-readable timestamp"] <= row["human-readable timestamp"])          
+            (df["human-readable timestamp"] <= row[
+                "human-readable timestamp"
+            ])          
         ].index
     return(df.drop(drop).reset_index())
 
