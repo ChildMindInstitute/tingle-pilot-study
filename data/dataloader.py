@@ -40,12 +40,12 @@ def combine_coordinators(data):
     c2 = c2[['secondCoordinator', 'step_c2', 'coordinator2']].copy()
     c1.drop(["coordinator", "ontarget"], axis=1, inplace=True)
     c = pd.concat([c1, c2], axis=1)
+    c["step_c2"] = c["step_c2"].ffill()
     c["ontarget"] = c[
         (c["coordinator1"] == c["coordinator2"])
         &
         (c["step"] == c["step_c2"])
     ]["coordinator1"]
-    c.drop(["step_c2"], axis=1, inplace=True)
     c["human-readable timestamp"] = pd.to_datetime(
         c["timestamp"]*1000000
     )
@@ -75,16 +75,53 @@ def correct_corrections(df, corrections):
     """
     for participant in corrections:
         for col in corrections[participant]:
-            df.loc[
-                list(
-                    df[
-                        df.participant==int(
-                            participant
-                        )
-                    ].index
-                ),
+            for incorrect in corrections[
+                participant
+            ][
                 col
-            ] = corrections[participant][col]
+            ]:
+                value = corrections[
+                    participant
+                ][
+                    col
+                ][
+                    incorrect
+                ][
+                    "value"
+                ] if "value" in corrections[
+                    participant
+                ][
+                    col
+                ][
+                    incorrect
+                ] else None
+                df.loc[
+                    list(
+                        df[
+                            df.participant==int(
+                                participant
+                            )
+                        ].index
+                    ),
+                    col
+                ] = value if value else df.loc[
+                    list(
+                        df[
+                            df.participant==int(
+                                participant
+                            )
+                        ].index
+                    ),
+                    corrections[
+                        participant
+                    ][
+                        col
+                    ][
+                        incorrect
+                    ][
+                        "column"
+                    ]
+                ]
     return(df)
 
 
