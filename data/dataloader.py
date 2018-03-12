@@ -90,7 +90,6 @@ def dropX(df, X=["X", "x"]):
                 ].index
             )
         )
-    print(drop)
     return(df.drop(drop))
 
 
