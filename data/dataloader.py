@@ -75,7 +75,6 @@ def dropX(df, X=["X", "x"]):
     ).isin(X)][
         ["step", "human-readable timestamp"]
     ].iterrows():
-        print(i)
         drop.extend(
             list(
                 df[
