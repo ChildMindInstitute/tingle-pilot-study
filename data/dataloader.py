@@ -69,21 +69,30 @@ def dropX(df, X=["X", "x"]):
     -------
     df: DataFrame
     """
-    for i, row in df[df["notes"].isin(X)][
+    drop = []
+    for i, row in df[df["notes"].apply(
+        lambda x: str(x).strip()
+    ).isin(X)][
         ["step", "human-readable timestamp"]
     ].iterrows():
-        drop = df[
-            (df["step"] == row.step)
-            &
-            (df["human-readable timestamp"] >= row[
-                "human-readable timestamp"
-            ] - datetime.timedelta(minutes=5))
-            &
-            (df["human-readable timestamp"] <= row[
-                "human-readable timestamp"
-            ])          
-        ].index
-    return(df.drop(drop).reset_index())
+        print(i)
+        drop.extend(
+            list(
+                df[
+                    (df["step"] == row.step)
+                    &
+                    (df["human-readable timestamp"] >= row[
+                        "human-readable timestamp"
+                    ] - datetime.timedelta(minutes=5))
+                    &
+                    (df["human-readable timestamp"] <= row[
+                        "human-readable timestamp"
+                    ])          
+                ].index
+            )
+        )
+    print(drop)
+    return(df.drop(drop))
 
 
 def load_from_firebase(
@@ -279,6 +288,14 @@ def load_from_firebase(
         notes["human-readable timestamp"] = pd.to_datetime(
             notes["timestamp"]*1000000
         )
+        notes = notes[
+                (notes["human-readable timestamp"] >= start) &
+                (notes["human-readable timestamp"] <= stop)
+            ] if (start and stop) else notes[
+                notes["human-readable timestamp"] >= start
+            ] if start else notes[
+                notes["human-readable timestamp"] <= stop
+            ] if stop else notes
         notes = notes[notes["timestamp"] > 0].sort_values("timestamp")
         data = pd.merge(
             data,
@@ -295,6 +312,7 @@ def load_from_firebase(
             right_index=True,
             how="outer"
         )
+        data = dropX(data)
     return(data, notes)
 
 
