@@ -66,7 +66,13 @@ def correct_corrections(df, corrections):
         key: participant number
         value: dictionary
             key: column
-            value: corrected value
+            value: dictionary
+                key: incorrect value
+                value: dictionary
+                    key: string
+                        "value" or "column"
+                    value: anything that can go in a DataFrame cell
+                        value or column name
     
     Returns
     -------
