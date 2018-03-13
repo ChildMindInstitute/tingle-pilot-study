@@ -11,54 +11,31 @@ from sklearn.neural_network import MLPClassifier
 pilot_data = pd.read_csv('pilot_data.csv')
 pilot_data = pilot_data[pilot_data.ontarget == True]
 
-
 def separate_participants(df):
 
     new_index = list(range(len(df)))
     df['reindex'] = new_index
+    df = df.set_index('reindex')
 
-    pilot_data = df.set_index('reindex')
+    new_index = []
 
-    participant_index = 0
+    participant_index = 1
     for i, row in df.iterrows():
         if (row.step == 47) and (i != len(df)-1) and (df.loc[i+1, 'step'] == 1):
             participant_index += 1
-            print('New Participant: ' + str(participant_index))
+            new_index.append(participant_index)
+        else:
+            new_index.append(participant_index)
 
-separate_participants(pilot_data)
+    df['participant_index'] = new_index
 
-notepath = "data/notes.csv"
-datapath = "data/pilot_data.csv"
-corrections_path = "data/corrections.json"
+    return df
 
-if(
-    os.path.exists(notepath) and
-    os.path.exists(datapath)
-):
-    notes = pd.read_csv(notepath)
-    pilot_data = pd.read_csv(datapath)
+pilot_data = separate_participants(pilot_data)
+pilot_data = pilot_data[pilot_data.participant_index <= 8]
 
-else:
-    pilot_data, notes = dataloader.load_from_firebase(
-        notes=True,
-        start=datetime.datetime(2018, 3, 6, 8),
-        combine=True,
-        marked=False
-    )
-    pilot_data.to_csv(
-        datapath,
-        index=False
-    )
-    notes.to_csv(
-        notepath,
-        index=False
-    )
-
-if os.path.exists(corrections_path):
-    with open("data/corrections.json", "r") as c:
-        corrections = json.load(c)
-else:
-    corrections = {}
+########################################################################
+# Return number of on-target samples for each motion
 
 for target in list(pilot_data.target.unique()):
     ib =max(
@@ -78,8 +55,14 @@ for target in list(pilot_data.target.unique()):
         )
     ]))
 
+########################################################################
+# Load dictionaries with on-target and sub-levels of off-targets based on specificity
+
 with open("neuralnet/targets.json", 'r') as fp:
     targets = json.load(fp)
+
+########################################################################
+# Data processing before training neural network
 
 
 def parse_data(data, target, spec):
@@ -93,7 +76,7 @@ def parse_data(data, target, spec):
     return on_target, off_targets, pilot_true, pilot_false
 
 
-on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data, 'eyebrow', spec=3)
+on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data, 'eyebrow', spec=4)
 
 
 def train_test(on_target, off_target, pilot_true, pilot_false, prop=.75):
@@ -239,22 +222,6 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
     plt.legend()
     plt.grid(True)
     plt.show()
-
-    #     fals_pos_sum = [float(x) for x in fals_pos_sum]
-    #     fals_neg_sum = [float(x) for x in fals_neg_sum]
-    #     true_pos_sum = [float(x) for x in true_pos_sum]
-    #     true_neg_sum = [float(x) for x in true_neg_sum]
-
-    #     fals_pos_sum = np.average(np.array(fals_pos_sum))
-    #     fals_neg_sum = np.average(np.array(fals_neg_sum))
-    #     true_pos_sum = np.average(np.array(true_pos_sum))
-    #     true_neg_sum = np.average(np.array(true_neg_sum))
-
-    #     print('Summary statistics after ' + str(iterations) + ' iterations:')
-    #     print('True positive rate:  ' + str(np.round(true_pos_sum,3)))
-    #     print('False positive rate: ' + str(np.round(fals_pos_sum,3)))
-    #     print('True negative rate:  ' + str(np.round(true_neg_sum,3)))
-    #     print('False negative rate: ' + str(np.round(fals_neg_sum,3)))
 
     return predi_probs, sum_stats
 
