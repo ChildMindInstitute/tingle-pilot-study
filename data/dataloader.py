@@ -26,24 +26,175 @@ def combine_coordinators(data):
     """
     c1 = data[data.thermopile1 != False].set_index("human-readable timestamp")
     c2 = data[data.thermopile1 == False].set_index("human-readable timestamp")
-    c2 = c2.reindex(c1.index, method="ffill")
-    c1[['firstCoordinator', 'coordinator1']] = c1[['coordinator', 'ontarget']]
-    c2[['secondCoordinator', 'step_c2', 'coordinator2']] = c2[['coordinator', 'step', 'ontarget']]
+    c2 = c2.drop_duplicates().reindex(
+        c1.drop_duplicates().index,
+        method="ffill",
+        limit=1
+    )
+    c1[['firstCoordinator', 'coordinator1']] = c1[
+        ['coordinator', 'ontarget']
+    ]
+    c2[['secondCoordinator', 'step_c2', 'coordinator2']] = c2[
+        ['coordinator', 'step', 'ontarget']
+    ]
     c2 = c2[['secondCoordinator', 'step_c2', 'coordinator2']].copy()
     c1.drop(["coordinator", "ontarget"], axis=1, inplace=True)
     c = pd.concat([c1, c2], axis=1)
+    c["step_c2"] = c["step_c2"].ffill()
     c["ontarget"] = c[
         (c["coordinator1"] == c["coordinator2"])
         &
         (c["step"] == c["step_c2"])
     ]["coordinator1"]
-    c.drop(["step_c2"], axis=1, inplace=True)
     c["human-readable timestamp"] = pd.to_datetime(
         c["timestamp"]*1000000
     )
     return(
         c
     )
+
+
+def correct_corrections(df, corrections):
+    """
+    Function to correct data entry errors
+    
+    Parameters
+    ----------
+    df: DataFrame
+    
+    corrections: dictionary
+        key: participant number
+        value: dictionary
+            key: column
+            value: dictionary
+                key: incorrect value
+                value: dictionary
+                    key: string
+                        "value" or "column"
+                    value: anything that can go in a DataFrame cell
+                        value or column name
+    
+    Returns
+    -------
+    df: DataFrame
+        updated
+    """
+    for participant in corrections:
+        for col in corrections[participant]:
+            for incorrect in corrections[
+                participant
+            ][
+                col
+            ]:
+                value = corrections[
+                    participant
+                ][
+                    col
+                ][
+                    incorrect
+                ][
+                    "value"
+                ] if "value" in corrections[
+                    participant
+                ][
+                    col
+                ][
+                    incorrect
+                ] else None
+                df.loc[
+                    list(
+                        df[
+                            df.participant==int(
+                                participant
+                            )
+                        ].index
+                    ),
+                    col
+                ] = value if value else df.loc[
+                    list(
+                        df[
+                            df.participant==int(
+                                participant
+                            )
+                        ].index
+                    ),
+                    corrections[
+                        participant
+                    ][
+                        col
+                    ][
+                        incorrect
+                    ][
+                        "column"
+                    ]
+                ]
+    return(df)
+
+
+def dropX(df, X=["X", "x"]):
+    """
+    Function to drop data annotated to drop.
+    
+    Parameters
+    ----------
+    df: DataFrame
+    
+    X: list of strings, optional
+        notes values indicating to drop an iteration
+        
+    Returns
+    -------
+    df: DataFrame
+    """
+    drop = []
+    for i, row in df[df["notes"].apply(
+        lambda x: str(x).strip()
+    ).isin(X)][
+        ["step", "human-readable timestamp"]
+    ].iterrows():
+        drop.extend(
+            list(
+                df[
+                    (df["step"] == row.step)
+                    &
+                    (df["human-readable timestamp"] >= row[
+                        "human-readable timestamp"
+                    ] - datetime.timedelta(minutes=5))
+                    &
+                    (df["human-readable timestamp"] <= row[
+                        "human-readable timestamp"
+                    ])          
+                ].index
+            )
+        )
+    return(df.drop(drop))
+
+
+def index_participants(df):
+    """
+    Function to index participants
+    
+    Parameter
+    ---------
+    df: DataFrame
+    
+    Returns
+    -------
+    participants_df: DataFrame
+    """
+    participants = {}
+    # initialize as if participant 0 just finished 
+    participant = 0
+    task = 47
+    p_index = []
+    for i, r in df.iterrows():
+        if (r.step == 1) and (task > r.step):
+            participant = participant + 1
+            participants[participant] = r["human-readable timestamp"]
+        task = r.step
+        p_index.append(participant)
+    df["participant"] = p_index
+    return(df)
 
 
 def load_from_firebase(
@@ -239,7 +390,31 @@ def load_from_firebase(
         notes["human-readable timestamp"] = pd.to_datetime(
             notes["timestamp"]*1000000
         )
+        notes = notes[
+                (notes["human-readable timestamp"] >= start) &
+                (notes["human-readable timestamp"] <= stop)
+            ] if (start and stop) else notes[
+                notes["human-readable timestamp"] >= start
+            ] if start else notes[
+                notes["human-readable timestamp"] <= stop
+            ] if stop else notes
         notes = notes[notes["timestamp"] > 0].sort_values("timestamp")
+        data = pd.merge(
+            data,
+            notes.set_index(
+                "human-readable timestamp"
+            ).reindex(
+                data["human-readable timestamp"],
+                method="ffill"
+            ).drop(
+                "timestamp",
+                axis=1
+            ).drop_duplicates(),
+            left_on="human-readable timestamp",
+            right_index=True,
+            how="outer"
+        )
+        data = dropX(data)
     return(data, notes)
 
 
@@ -261,7 +436,7 @@ def split_participants(df):
         if i > 0:
             if not rolling:
                 rolling = i if row.step == 1 else None
-            if row.step == 1 and df.loc[i-1, "step"] == 47:
+            if row.step == 1 and df.loc[i-1, "step"] > row.step:
                 dfs.append(
                     df.loc[
                         rolling:i,
