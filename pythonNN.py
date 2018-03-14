@@ -1,9 +1,6 @@
-import os
 import json
-import datetime
 import numpy as np
 import pandas as pd
-from data import dataloader
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc, accuracy_score
 from sklearn.neural_network import MLPClassifier
@@ -37,23 +34,25 @@ pilot_data = pilot_data[pilot_data.participant_index <= 8]
 ########################################################################
 # Return number of on-target samples for each motion
 
-for target in list(pilot_data.target.unique()):
-    ib =max(
-        pilot_data.loc[
-            pilot_data.target==target
-        ].step.dropna()
-    )
-    print(": ".join([
-        target,
-        "{0} on-target samples in {1} iteration block{2}".format(
-            str(len(pilot_data.loc[
-                (pilot_data.target == target) &
-                (pilot_data.ontarget)
-            ])),
-            "%.0f" % ib,
-            "s" if ib != 1 else ""
+def data_summary(df):
+
+    for target in list(pilot_data.target.unique()):
+        ib =max(
+            pilot_data.loc[
+                pilot_data.target==target
+            ].step.dropna()
         )
-    ]))
+        print(": ".join([
+            target,
+            "{0} on-target samples in {1} iteration block{2}".format(
+                str(len(pilot_data.loc[
+                    (pilot_data.target == target) &
+                    (pilot_data.ontarget)
+                ])),
+                "%.0f" % ib,
+                "s" if ib != 1 else ""
+            )
+        ]))
 
 ########################################################################
 # Load dictionaries with on-target and sub-levels of off-targets based on specificity
@@ -66,6 +65,7 @@ with open("neuralnet/targets.json", 'r') as fp:
 
 
 def parse_data(data, target, spec):
+
     on_target = targets[target][0]
 
     off_targets = targets[target][spec]
@@ -76,71 +76,82 @@ def parse_data(data, target, spec):
     return on_target, off_targets, pilot_true, pilot_false
 
 
-on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data, 'eyebrow', spec=4)
+def train_test(on_target, off_target, pilot_true, pilot_false, prop=.75, off_prop=.75):
 
+    train_size_true = int(np.round(prop * len(pilot_true), 0))
+    train_size_false = int(np.round(prop * len(pilot_false), 0))
 
-def train_test(on_target, off_target, pilot_true, pilot_false, prop=.75):
-    train_size_true = int(np.round(prop * len(pilot_true), 0))  # Number of on-target training samples used for training
-
-    pilot_true_array = []
-    pilot_false_array = []
-    train_targets = []
-    test_targets = []
-
-    on_targets = []
-    off_targets = []
+    on_target_train = []
+    on_target_test = []
 
     for row in pilot_true[(pilot_true.target == on_target) & (pilot_true.ontarget)][
-        ['distance', 'thermopile1', 'thermopile2', 'thermopile3', 'thermopile4']].values.tolist():
-        pilot_true_array.append({'in': row, 'out': 1})
+        ['distance', 'thermopile1', 'thermopile2', 'thermopile3', 'thermopile4']].values.tolist()[:train_size_true]:
+        row = [np.round(float(x) / 150, 3) for x in row]
+        on_target_train.append({'in': row, 'out': 1})
+
+    for row in pilot_true[(pilot_true.target == on_target) & (pilot_true.ontarget)][
+        ['distance', 'thermopile1', 'thermopile2', 'thermopile3', 'thermopile4']].values.tolist()[train_size_true:]:
+        row = [np.round(float(x) / 150, 3) for x in row]
+        on_target_test.append({'in': row, 'out': 1})
+
+
+
+
+    ################################################################################################################
+
+    off_target_train = []
+    off_target_test = []
 
     for item in off_target:
-        if ('rotate' in item) or ('paint' in item):
+        if ('offbody' in item) or ('paint' in item):
             size = pilot_false[pilot_false.target == item].shape[0]
-            size = int(np.round(prop * size, 0))
+            size = int(np.round(off_prop * size, 0))
             for row in pilot_false[(pilot_false.target == item)][
                            ['distance', 'thermopile1', 'thermopile2', 'thermopile3', 'thermopile4']].values.tolist()[
                        :size]:
-                pilot_false_array.append({'in': row, 'out': 0})
+                row = [np.round(float(x)/150, 3) for x in row]
+                off_target_train.append({'in': row, 'out': 0})
+            for row in pilot_false[(pilot_false.target == item)][
+                           ['distance', 'thermopile1', 'thermopile2', 'thermopile3', 'thermopile4']].values.tolist()[
+                       size:]:
+                row = [np.round(float(x) / 150, 3) for x in row]
+                off_target_test.append({'in': row, 'out': 0})
         else:
             size = pilot_false[pilot_false.target == item].shape[0]
             for row in pilot_false[(pilot_false.target == item)][
-                ['distance', 'thermopile1', 'thermopile2', 'thermopile3', 'thermopile4']].values.tolist():
-                pilot_false_array.append({'in': row, 'out': 0})
+                ['distance', 'thermopile1', 'thermopile2', 'thermopile3', 'thermopile4']].values.tolist()[:size]:
+                row = [np.round(float(x) / 150, 3) for x in row]
+                off_target_train.append({'in': row, 'out': 0})
+            for row in pilot_false[(pilot_false.target == item)][
+                ['distance', 'thermopile1', 'thermopile2', 'thermopile3', 'thermopile4']].values.tolist()[size:]:
+                row = [np.round(float(x) / 150, 3) for x in row]
+                off_target_test.append({'in': row, 'out': 0})
 
     train_data = []
-    train_data_p = []
     test_data = []
-    test_data_p = []
     train_targets = []
     test_targets = []
 
-    train_size_false = int(np.round(prop * len(pilot_false_array), 0))
+    for row in on_target_train:
+        train_targets.append(row['out'])
+        train_data.append(row['in'])
 
-    train_data_p.extend(pilot_true_array[:train_size_true])  #
-    train_data_p.extend(pilot_false_array[:train_size_false])
+    for row in off_target_train:
+        train_targets.append(row['out'])
+        train_data.append(row['in'])
 
-    for row in train_data_p:
-        on_targets.append(row['out'])
-        row = [np.round(float(x) / 150, 3) for x in row['in']]
-        train_data.append(row)
+    for row in on_target_test:
+        test_targets.append(row['out'])
+        test_data.append(row['in'])
 
-    test_data_p.extend(pilot_true_array[train_size_true:])
-    test_data_p.extend(pilot_false_array[train_size_false:])
+    for row in off_target_test:
+        test_targets.append(row['out'])
+        test_data.append(row['in'])
 
-    for row in test_data_p:
-        row = [np.round(float(x) / 150, 3) for x in row['in']]
-        test_data.append(row)
+    return train_data, train_targets, test_data, test_targets
 
-    train_targets.extend(on_targets[:train_size_true])
-    train_targets.extend(off_targets[:train_size_false])
-    test_targets.extend(on_targets[train_size_true:])
-    test_targets.extend(off_targets[train_size_false:])
-
-    return train_data_p, train_targets, test_data_p, test_targets
-
-train_data, train_targets, test_data, test_targets = train_test(on_target, off_target, pilot_true, pilot_false,
-                                                                prop=.50)
+########################################################################
+# Training and testing the neural network
 
 
 def nn_iterations(train_data, train_targets, test_data, test_targets, iterations=1):
@@ -151,8 +162,11 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
     sum_stats = []
 
     plt.figure(figsize=(5, 5))
+    plt.title('Target: ' + str(target) + ', specificity=' + str(specificity_level))
 
     for num in range(iterations):
+
+        print('Iteration: ' + str(num+1))
 
         clf = MLPClassifier(solver='adam', alpha=.0001,
                             hidden_layer_sizes=(5, 2),
@@ -166,8 +180,6 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
         predi_probs = clf.predict_proba(test_data)
 
         acc_score = accuracy_score(predictions, test_targets)
-
-        print(acc_score)
 
         fpr, tpr, thresholds = roc_curve(test_targets, predi_probs[:, 1], drop_intermediate=True)
         roc_auc = auc(fpr, tpr)
@@ -212,12 +224,6 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
                     #         true_pos_sum.append(str(len(true_pos)/count_pos))
                     #         true_neg_sum.append(str(len(true_neg)/count_neg))
 
-        print(roc_auc)
-
-        if roc_auc > .55:
-            print(str(len(fals_pos) / count_pos), str(len(fals_neg) / count_neg), str(len(true_pos) / count_pos),
-                  str(len(true_neg) / count_neg))
-
     plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=.8)
     plt.legend()
     plt.grid(True)
@@ -225,5 +231,15 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
 
     return predi_probs, sum_stats
 
+# on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data, 'eyebrow', spec=4)
+# train_data, train_targets, test_data, test_targets = train_test(on_target, off_target, pilot_true, pilot_false,
+#                                                                 prop=.75, off_prop=.75)
+# predi_probs, sum_stats = nn_iterations(train_data, train_targets, test_data, test_targets, iterations=10)
 
-predi_probs, sum_stats = nn_iterations(train_data, train_targets, test_data, test_targets, iterations=1)
+for target in ['eyebrow']:
+    for specificity_level in [1, 2]:
+        print('Starting analysis on ' + target + ' with specificity ' + str(specificity_level))
+        on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data, target, spec=specificity_level)
+        train_data, train_targets, test_data, test_targets = train_test(on_target, off_target, pilot_true, pilot_false,
+                                                                        prop=.75, off_prop=.75)
+        predi_probs, sum_stats = nn_iterations(train_data, train_targets, test_data, test_targets, iterations=10)
