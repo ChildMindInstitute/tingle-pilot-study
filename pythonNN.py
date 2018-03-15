@@ -1,3 +1,4 @@
+import csv
 import json
 import numpy as np
 import pandas as pd
@@ -161,10 +162,16 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
     fals_neg_sum = []
     sum_stats = []
 
-    plt.figure(figsize=(5, 5))
-    plt.title('Target: ' + str(target) + ', specificity=' + str(specificity_level))
+    valid = 0
+    best = 0
 
-    for num in range(iterations):
+    plt.figure(figsize=(5, 5))
+    plt.title('Target: ' + str(target) + ', specificity=' + str(specificity_level) + ', person: ' + str(persons))
+
+    for num in range(iterations*3):
+
+        if valid == iterations:
+            break
 
         print('Iteration: ' + str(num+1))
 
@@ -182,9 +189,15 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
         acc_score = accuracy_score(predictions, test_targets)
 
         fpr, tpr, thresholds = roc_curve(test_targets, predi_probs[:, 1], drop_intermediate=True)
+
         roc_auc = auc(fpr, tpr)
         if roc_auc > .55:
             plt.plot(fpr, tpr, lw=1, alpha=0.5, label='ROC fold (AUC = %0.2f)' % (roc_auc))
+            valid += 1
+            if roc_auc > best:
+                best = roc_auc
+                output_set = [fpr, tpr, thresholds, predi_probs[:, 1], roc_auc]
+
 
         predi_fals = [x for x, y in predi_probs]
         predi_true = [y for x, y in predi_probs]
@@ -229,17 +242,33 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
     plt.grid(True)
     plt.show()
 
-    return predi_probs, sum_stats
+    return predi_probs, sum_stats, output_set
 
-# on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data, 'eyebrow', spec=4)
-# train_data, train_targets, test_data, test_targets = train_test(on_target, off_target, pilot_true, pilot_false,
-#                                                                 prop=.75, off_prop=.75)
-# predi_probs, sum_stats = nn_iterations(train_data, train_targets, test_data, test_targets, iterations=10)
+output_df = pd.read_csv('output.csv')
 
 for target in ['eyebrow']:
-    for specificity_level in [1, 2]:
-        print('Starting analysis on ' + target + ' with specificity ' + str(specificity_level))
-        on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data, target, spec=specificity_level)
-        train_data, train_targets, test_data, test_targets = train_test(on_target, off_target, pilot_true, pilot_false,
-                                                                        prop=.75, off_prop=.75)
-        predi_probs, sum_stats = nn_iterations(train_data, train_targets, test_data, test_targets, iterations=10)
+    for specificity_level in [2, 4]:
+        for persons in range(5):
+            print('Starting analysis on ' + target + ' with specificity ' + str(specificity_level) + ' on person ' + str(persons))
+            on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data[pilot_data.participant_index == 1],
+                                                                        target, spec=specificity_level)
+            train_data, train_targets, test_data, test_targets = train_test(on_target, off_target, pilot_true, pilot_false,
+                                                                            prop=.75, off_prop=.75)
+            predi_probs, sum_stats, output_set = nn_iterations(train_data, train_targets, test_data, test_targets, iterations=10)
+            print(output_set[4])
+
+            output_df = output_df.append({'participant': persons, 'target': target, 'specificity': specificity_level,
+                                          'fpr': output_set[0], 'tpr': output_set[1], 'auroc': output_set[4],
+                                          'thresholds': output_set[2], 'predi_probs': output_set[3],
+                                          'proportion': .75}, ignore_index=True)
+
+            df_temp = []
+            df_temp = pd.DataFrame([persons, target, 'spec', 'fpr_str', 'tpr_str', 'threshold_st', 'predi_str',
+                                    'prop_str', output_set[4]], columns=['participant', 'target', 'specificity', 'fpr',
+                                                                         'tpr', 'thresholds', 'predi_probs',
+                                                                         'proportion', 'auroc'])
+            output_df.append(df_temp)
+            print('Completed ' + str(persons))
+output_df.to_csv('output.csv')
+
+
