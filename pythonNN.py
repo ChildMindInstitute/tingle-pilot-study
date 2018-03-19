@@ -95,9 +95,6 @@ def train_test(on_target, off_target, pilot_true, pilot_false, prop=.75, off_pro
         row = [np.round(float(x) / 150, 3) for x in row]
         on_target_test.append({'in': row, 'out': 1})
 
-
-
-
     ################################################################################################################
 
     off_target_train = []
@@ -166,7 +163,7 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
     best = 0
 
     plt.figure(figsize=(5, 5))
-    plt.title('Target: ' + str(target) + ', specificity=' + str(specificity_level) + ', person: ' + str(persons))
+    plt.title('Target: ' + str(target) + ', specificity=' + str(specificity_level) + ', person: ' + str(persons) + ' using ' + str(off_props))
 
     for num in range(iterations*3):
 
@@ -191,6 +188,7 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
         fpr, tpr, thresholds = roc_curve(test_targets, predi_probs[:, 1], drop_intermediate=True)
 
         roc_auc = auc(fpr, tpr)
+
         if roc_auc > .55:
             plt.plot(fpr, tpr, lw=1, alpha=0.5, label='ROC fold (AUC = %0.2f)' % (roc_auc))
             valid += 1
@@ -240,6 +238,9 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
     plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=.8)
     plt.legend()
     plt.grid(True)
+    title = target + '_spec' + str(specificity_level) + '_p' + str(persons) + '_' + str(off_props)
+    plt.title(title)
+    plt.savefig('Figures/' + str(title) + '.png', dpi=600)
     plt.show()
 
     return predi_probs, sum_stats, output_set
@@ -247,28 +248,36 @@ def nn_iterations(train_data, train_targets, test_data, test_targets, iterations
 output_df = pd.read_csv('output.csv')
 
 for target in ['eyebrow']:
-    for specificity_level in [2, 4]:
-        for persons in range(5):
-            print('Starting analysis on ' + target + ' with specificity ' + str(specificity_level) + ' on person ' + str(persons))
-            on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data[pilot_data.participant_index == 1],
-                                                                        target, spec=specificity_level)
-            train_data, train_targets, test_data, test_targets = train_test(on_target, off_target, pilot_true, pilot_false,
-                                                                            prop=.75, off_prop=.75)
-            predi_probs, sum_stats, output_set = nn_iterations(train_data, train_targets, test_data, test_targets, iterations=10)
-            print(output_set[4])
 
-            output_df = output_df.append({'participant': persons, 'target': target, 'specificity': specificity_level,
-                                          'fpr': output_set[0], 'tpr': output_set[1], 'auroc': output_set[4],
-                                          'thresholds': output_set[2], 'predi_probs': output_set[3],
-                                          'proportion': .75}, ignore_index=True)
+    for persons in range(8):
 
-            df_temp = []
-            df_temp = pd.DataFrame([persons, target, 'spec', 'fpr_str', 'tpr_str', 'threshold_st', 'predi_str',
-                                    'prop_str', output_set[4]], columns=['participant', 'target', 'specificity', 'fpr',
-                                                                         'tpr', 'thresholds', 'predi_probs',
-                                                                         'proportion', 'auroc'])
-            output_df.append(df_temp)
-            print('Completed ' + str(persons))
+        for specificity_level in [2]:
+
+            for off_props in [.2, .4, .6, .8]:
+
+                print('Starting analysis on ' + target + ' with specificity ' + str(specificity_level) + ' on person ' + str(persons) + ' using ' + str(off_props))
+                on_target, off_target, pilot_true, pilot_false = parse_data(pilot_data[pilot_data.participant_index == 1],
+                                                                            target, spec=specificity_level)
+                train_data, train_targets, test_data, test_targets = train_test(on_target, off_target, pilot_true, pilot_false,
+                                                                                prop=.75, off_prop=off_props)
+                predi_probs, sum_stats, output_set = nn_iterations(train_data, train_targets, test_data, test_targets, iterations=10)
+                print('AUROC: ' + str(output_set[4]))
+
+                output_df = output_df.append({'participant': persons, 'target': target, 'specificity': specificity_level,
+                                              'fpr': output_set[0], 'tpr': output_set[1], 'auroc': output_set[4],
+                                              'thresholds': output_set[2], 'predi_probs': output_set[3],
+                                              'proportion': .75}, ignore_index=True)
+
+                #
+                #
+                # df_temp = pd.DataFrame([persons, target, 'spec', 'fpr_str', 'tpr_str', 'threshold_st', 'predi_str',
+                #                         'prop_str', output_set[4]], columns=['participant', 'target', 'specificity', 'fpr',
+                #                                                              'tpr', 'thresholds', 'predi_probs',
+                #                                                              'proportion', 'auroc'])
+                # output_df.append(df_temp)
+
+                print('Completed ' + str(persons))
+
 output_df.to_csv('output.csv')
 
 
