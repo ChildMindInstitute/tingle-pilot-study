@@ -79,6 +79,13 @@ def correct_corrections(df, corrections):
     df: DataFrame
         updated
     """
+    df.target = pd.Series(
+        [t if t != "none" else "food" for \
+         t in list(
+             df.target
+         )
+        ]
+    ) # initial participant+task mislabeled "none"
     for participant in corrections:
         for col in corrections[participant]:
             for incorrect in corrections[
@@ -129,6 +136,40 @@ def correct_corrections(df, corrections):
                     ]
                 ]
     return(df)
+
+
+def count_ontarget_samples(df, human_readable=False):
+    """
+    Function to count usable samples.
+    
+    Parameters
+    ----------
+    df: DataFrame
+    
+    human_readable: Boolean, optional
+        default=False
+    
+    Returns
+    -------
+    ontarget_counts: DataFrame
+        MultiIndexed if human_readable, otherwise
+        "step" by "participant"
+    """
+    ontarget_counts = df[
+        (df["ontarget"]==True)
+    ][
+        ["step", "target", "participant", "ontarget"]
+    ].groupby(
+        ["step", "target", "participant"]
+    ).count().unstack(fill_value=0)
+    if human_readable:
+        return(ontarget_counts)
+    ontarget_counts.set_index(
+        ontarget_counts.index.droplevel("target"),
+        inplace=True
+    )
+    ontarget_counts.columns = ontarget_counts.columns.droplevel()
+    return(ontarget_counts)
 
 
 def dropX(df, X=["X", "x"]):
@@ -398,7 +439,9 @@ def load_from_firebase(
             ] if start else notes[
                 notes["human-readable timestamp"] <= stop
             ] if stop else notes
-        notes = notes[notes["timestamp"] > 0].sort_values("timestamp")
+        notes = notes[
+            notes["timestamp"] > 0
+        ].sort_values("timestamp")
         data = pd.merge(
             data,
             notes.set_index(
@@ -418,6 +461,53 @@ def load_from_firebase(
     return(data, notes)
 
 
+def lookup_counts(
+    row,
+    lookup_table,
+    index="step",
+    columns="participant",
+    default=False
+):
+    """
+    Function to apply to a DataFrame to cross-reference
+    counts in a lookup_table.
+    
+    Parameters
+    ----------
+    row: Series
+        row of a DataFrame
+    
+    lookup_table: DataFrame
+        DataFrame to cross-reference
+        
+    index: string or numeric, opitional
+        name of column in row that contains an index value
+        for lookup_table, default = "step"
+    
+    columns: string or numeric, opitional
+        name of column in row that contains a column name
+        for lookup_table, default = "participant"
+        
+    default: boolean or other, optional
+        value to return if lookup not in lookup table
+        default = False
+        
+    Returns
+    -------
+    value: boolean or other
+        the value at index, columns; otherwise default
+    """
+    try:
+        return(
+            lookup_table.loc[
+                row[index],
+                row[columns]
+            ].all()
+        )
+    except:
+        return(default)
+
+
 def split_participants(df):
     """
     Function to split DataFrame into separate participants
@@ -431,12 +521,18 @@ def split_participants(df):
     dfs: list of DataFrames
     """
     dfs = []
-    rolling = 0 if df.loc[0, "step"] == 1 else None
+    rolling = 0 if df.loc[
+        0,
+        "step"
+    ] == 1 else None
     for i, row in df.iterrows():
         if i > 0:
             if not rolling:
                 rolling = i if row.step == 1 else None
-            if row.step == 1 and df.loc[i-1, "step"] > row.step:
+            if row.step == 1 and df.loc[
+                i-1,
+                "step"
+            ] > row.step:
                 dfs.append(
                     df.loc[
                         rolling:i,
@@ -457,3 +553,79 @@ def split_participants(df):
         )
     )
     return(dfs)
+
+
+def update_from_one(row):
+    """
+    Function to update rows that need updated
+    from agreement to single_coordinator
+    
+    Parameter
+    ---------
+    row: Series
+    
+    Returns
+    -------
+    updated: Boolean or other
+    """
+    try:
+        return(
+            row.one_coordinator if row.needs_updated \
+            else row.both_coordinators
+        )
+    except:
+        print(row)
+              
+
+def update_too_few(df, condition):
+    """
+    Function to update a DataFrame with an inappropriate
+    number of samples in coordinator agreement.
+    
+    Parameters
+    ----------
+    df: DataFrame
+        DataFrame to update
+        
+    condition: string
+        definition of inappropriate count, eg, "< 5"
+        
+    Returns
+    -------
+    df: DataFrame
+        DataFrame updated with single-rater matches
+        replacing dual-rater agreement in cases indicated
+        by condition
+    """
+    on_target_counts = count_ontarget_samples(
+        df
+    )
+    default = eval(
+        " ".join([
+            "0",
+            condition
+        ])
+    )
+    df["ontarget"] = pd.DataFrame({
+        "needs_updated": df.apply(
+            lookup_counts,
+            axis=1,
+            lookup_table=eval(
+                "({0} {1})".format(
+                    "on_target_counts",
+                    condition
+                )
+            ),
+            default=default
+        ),
+        "one_coordinator": df[
+            "ontarget"
+        ] != False,
+        "both_coordinators": df[
+            "ontarget"
+        ]
+    }).apply(
+        update_from_one,
+        axis=1
+    )
+    return(df)
