@@ -628,6 +628,39 @@ def update_from_one(row):
     Returns
     -------
     updated: Boolean or other
+    
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> row = pd.Series(
+    >>>     {
+    >>>         "one_coordinator": True,
+    >>>         "both_coordinators": False,
+    >>>         "needs_updated": True
+    >>>     }
+    >>> )
+    >>> update_from_one(row)
+    True
+    >>> import pandas as pd
+    >>> row = pd.Series(
+    >>>     {
+    >>>         "one_coordinator": True,
+    >>>         "both_coordinators": False,
+    >>>         "needs_updated": False
+    >>>     }
+    >>> )
+    >>> update_from_one(row)
+    False
+    >>> import pandas as pd
+    >>> row = pd.Series(
+    >>>     {
+    >>>         "one_coordinator": False,
+    >>>         "both_coordinators": False,
+    >>>         "needs_updated": True
+    >>>     }
+    >>> )
+    >>> update_from_one(row)
+    False
     """
     try:
         return(
