@@ -106,8 +106,16 @@ def correct_corrections(df, corrections):
                 df2.loc[
                     list(
                         df[
-                            df.participant==int(
-                                participant
+                            (
+                                df.participant==int(
+                                    participant
+                                )
+                            ) & (
+                                df[col].astype(
+                                    str
+                                ) == str(
+                                    incorrect
+                                )
                             )
                         ].index
                     ),
@@ -115,8 +123,16 @@ def correct_corrections(df, corrections):
                 ] = value if value else df.loc[
                     list(
                         df[
-                            df.participant==int(
-                                participant
+                            (
+                                df.participant==int(
+                                    participant
+                                )
+                            ) & (
+                                df[col].astype(
+                                    str
+                                ) == str(
+                                    incorrect
+                                )
                             )
                         ].index
                     ),
@@ -664,9 +680,15 @@ def update_too_few(df, condition):
             ),
             default=default
         ),
-        "one_coordinator": df[
-            "ontarget"
-        ] != False,
+        "one_coordinator": (
+            (
+                df.coordinator1 == True
+            ) | (
+                df.coordinator2 == True
+            )
+        ) & (
+            df.step == df.step_c2
+        ),
         "both_coordinators": df[
             "ontarget"
         ]
