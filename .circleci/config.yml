@@ -48,7 +48,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pytest --pyargs tingle-pilot-study
+            python -m nose --with-doctest data/dataloader.py
 
       - store_artifacts:
           path: test-reports

@@ -14,12 +14,12 @@ import requests
 def combine_coordinators(data):
     """
     Function to combine coordinator rows from 2 to 1.
-    
+
     Parameter
     ---------
     data : DataFrame
         DataFrame with separate coordinator rows
-        
+
     Returns
     -------
     data : DataFrame
@@ -58,11 +58,11 @@ def combine_coordinators(data):
 def correct_corrections(df, corrections):
     """
     Function to correct data entry errors
-    
+
     Parameters
     ----------
     df: DataFrame
-    
+
     corrections: dictionary
         key: participant number
         value: dictionary
@@ -74,7 +74,7 @@ def correct_corrections(df, corrections):
                         "value" or "column"
                     value: anything that can go in a DataFrame cell
                         value or column name
-    
+
     Returns
     -------
     df2: DataFrame
@@ -153,11 +153,11 @@ def correct_targets(df, targets):
     """
     Function to update targets that were steamrolled
     during data collection. 🧖
-    
+
     Parameters
     ----------
     df: DataFrame
-    
+
     targets: dictionary
         key: numeric
             step
@@ -167,7 +167,7 @@ def correct_targets(df, targets):
             URL to JSON with respective
             labels "number" and "target" for key and
             value
-            
+
     Returns
     -------
     df: DataFrame
@@ -202,14 +202,14 @@ def correct_targets(df, targets):
 def count_ontarget_samples(df, human_readable=False):
     """
     Function to count usable samples.
-    
+
     Parameters
     ----------
     df: DataFrame
-    
+
     human_readable: Boolean, optional
         default=False
-    
+
     Returns
     -------
     ontarget_counts: DataFrame
@@ -236,14 +236,14 @@ def count_ontarget_samples(df, human_readable=False):
 def dropX(df, X=["X", "x"]):
     """
     Function to drop data annotated to drop.
-    
+
     Parameters
     ----------
     df: DataFrame
-    
+
     X: list of strings, optional
         notes values indicating to drop an iteration
-        
+
     Returns
     -------
     df: DataFrame
@@ -265,7 +265,7 @@ def dropX(df, X=["X", "x"]):
                     &
                     (df["human-readable timestamp"] <= row[
                         "human-readable timestamp"
-                    ])          
+                    ])
                 ].index
             )
         )
@@ -275,17 +275,17 @@ def dropX(df, X=["X", "x"]):
 def index_participants(df):
     """
     Function to index participants
-    
+
     Parameter
     ---------
     df: DataFrame
-    
+
     Returns
     -------
     participants_df: DataFrame
     """
     participants = {}
-    # initialize as if participant 0 just finished 
+    # initialize as if participant 0 just finished
     participant = 0
     task = 47
     p_index = []
@@ -311,32 +311,32 @@ def load_from_firebase(
     Function to load data from Firebase.
     Requires [Firebase service account credentials](https://console.firebase.google.com/project/tingle-pilot-collected-data/settings/serviceaccounts/adminsdk)
     in JSON format.
-    
+
     Parameters
     ----------
     dbURL : string (optional)
         Firebase database to pull data from
-        
+
     notes : Boolean (optional)
         Return notes as well as data?
-        
+
     start : date or datetime (optional)
         start time of data to include (eg, `datetime.date(2018,3,6)`)
-        
+
     stop : date or datetime (optional)
         stop time of data to include (eg, `datetime.date(2018,3,6)`)
-        
+
     combine : Boolean (optional)
         combine coordinators into a single row?
-        
+
     marked : Boolean (optional)
         only include ontarget==True rows?
-        
+
     Returns
     -------
     data : DataFrame
         Pandas DataFrame of data from Firebase
-        
+
     notes : DataFrame (optional)
         Pandas DataFrame of notes from Firebase iff parameter notes==True,
     """
@@ -432,7 +432,7 @@ def load_from_firebase(
         data["timestamp"]*1000000
     )
     stop = start + datetime.timedelta(days=1) if (
-        (start) and 
+        (start) and
         (stop == start)
     ) else stop
     data = data[
@@ -532,27 +532,27 @@ def lookup_counts(
     """
     Function to apply to a DataFrame to cross-reference
     counts in a lookup_table.
-    
+
     Parameters
     ----------
     row: Series
         row of a DataFrame
-    
+
     lookup_table: DataFrame
         DataFrame to cross-reference
-        
+
     index: string or numeric, opitional
         name of column in row that contains an index value
         for lookup_table, default = "step"
-    
+
     columns: string or numeric, opitional
         name of column in row that contains a column name
         for lookup_table, default = "participant"
-        
+
     default: boolean or other, optional
         value to return if lookup not in lookup table
         default = False
-        
+
     Returns
     -------
     value: boolean or other
@@ -572,11 +572,11 @@ def lookup_counts(
 def split_participants(df):
     """
     Function to split DataFrame into separate participants
-    
+
     Parameter
     ---------
     df: DataFrame
-    
+
     Returns
     -------
     dfs: list of DataFrames
@@ -620,45 +620,47 @@ def update_from_one(row):
     """
     Function to update rows that need updated
     from agreement to single_coordinator
-    
+
     Parameter
     ---------
     row: Series
-    
+
     Returns
     -------
     updated: Boolean or other
-    
+
     Examples
     --------
     >>> import pandas as pd
     >>> row = pd.Series(
-    >>>     {
-    >>>         "one_coordinator": True,
-    >>>         "both_coordinators": False,
-    >>>         "needs_updated": True
-    >>>     }
-    >>> )
+    ...     {
+    ...         "one_coordinator": True,
+    ...         "both_coordinators": False,
+    ...         "needs_updated": True
+    ...     }
+    ... )
     >>> update_from_one(row)
     True
+
     >>> import pandas as pd
     >>> row = pd.Series(
-    >>>     {
-    >>>         "one_coordinator": True,
-    >>>         "both_coordinators": False,
-    >>>         "needs_updated": False
-    >>>     }
-    >>> )
+    ...     {
+    ...         "one_coordinator": True,
+    ...         "both_coordinators": False,
+    ...         "needs_updated": False
+    ...     }
+    ... )
     >>> update_from_one(row)
     False
+    
     >>> import pandas as pd
     >>> row = pd.Series(
-    >>>     {
-    >>>         "one_coordinator": False,
-    >>>         "both_coordinators": False,
-    >>>         "needs_updated": True
-    >>>     }
-    >>> )
+    ...     {
+    ...         "one_coordinator": False,
+    ...         "both_coordinators": False,
+    ...         "needs_updated": True
+    ...     }
+    ... )
     >>> update_from_one(row)
     False
     """
@@ -670,21 +672,21 @@ def update_from_one(row):
     except:
         print("except")
         print(row)
-              
+
 
 def update_too_few(df, condition):
     """
     Function to update a DataFrame with an inappropriate
     number of samples in coordinator agreement.
-    
+
     Parameters
     ----------
     df: DataFrame
         DataFrame to update
-        
+
     condition: string
         definition of inappropriate count, eg, "< 5"
-        
+
     Returns
     -------
     df: DataFrame
