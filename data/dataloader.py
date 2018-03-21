@@ -6,8 +6,9 @@ from firebase_admin import credentials
 from firebase_admin import db
 from itertools import chain
 import numpy as np
-import pandas as pd
 import os
+import pandas as pd
+import requests
 
 
 def combine_coordinators(data):
@@ -76,16 +77,10 @@ def correct_corrections(df, corrections):
     
     Returns
     -------
-    df: DataFrame
+    df2: DataFrame
         updated
     """
-    df.target = pd.Series(
-        [t if t != "none" else "food" for \
-         t in list(
-             df.target
-         )
-        ]
-    ) # initial participant+task mislabeled "none"
+    df2 = df.copy()
     for participant in corrections:
         for col in corrections[participant]:
             for incorrect in corrections[
@@ -108,7 +103,7 @@ def correct_corrections(df, corrections):
                 ][
                     incorrect
                 ] else None
-                df.loc[
+                df2.loc[
                     list(
                         df[
                             df.participant==int(
@@ -135,6 +130,56 @@ def correct_corrections(df, corrections):
                         "column"
                     ]
                 ]
+    return(df2)
+
+
+def correct_targets(df, targets):
+    """
+    Function to update targets that were steamrolled
+    during data collection. 🧖
+    
+    Parameters
+    ----------
+    df: DataFrame
+    
+    targets: dictionary
+        key: numeric
+            step
+        value: string
+            target
+        or string
+            URL to JSON with respective
+            labels "number" and "target" for key and
+            value
+            
+    Returns
+    -------
+    df: DataFrame
+    """
+    if isinstance(
+        targets,
+        str
+    ):
+        targets = pd.DataFrame(
+            requests.get(
+                url=targets
+            ).json()
+        )[
+            [
+                "number",
+                "target"
+            ]
+        ].set_index(
+            "number"
+        ).drop(
+            999,
+            axis=0
+        ).T.to_dict(
+            "records"
+        )[0]
+    df["target"] = df.step.apply(
+        lambda x: targets[x]
+    )
     return(df)
 
 
@@ -574,6 +619,7 @@ def update_from_one(row):
             else row.both_coordinators
         )
     except:
+        print("except")
         print(row)
               
 
