@@ -56,7 +56,7 @@ jobs:
 
       - store_artifacts:
           path: coverage.svg
-          destination: coverage
+          destination: coverage/coverage.svg
 
       - store_artifacts:
           path: test-reports
