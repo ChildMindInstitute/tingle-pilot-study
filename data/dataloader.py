@@ -24,9 +24,54 @@ def combine_coordinators(data):
     -------
     data : DataFrame
         DataFrame with combined coordinator rows
+        
+    Example
+    -------
+    >>> import pandas as pd
+    >>> import os
+    >>> from urllib.request import urlretrieve
+    >>> temp_fake_data = "temp_fake_data.csv"
+    >>> if not os.path.exists(
+    ...     os.path.abspath(
+    ...         os.path.dirname(temp_fake_data)
+    ...     )
+    ... ):
+    >>>     os.makedirs(
+    ...         os.path.abspath(
+    ...             os.path.dirname(temp_fake_data)
+    ...         )
+    ...     )
+    >>> urlretrieve(
+    ...     "{1}{0}{2}".format(
+    ...         "1kgZJrKTDSI5xg9uAD_LAYq2PrM20nAmxEiyJ597coKk",
+    ...         'https://docs.google.com/spreadsheets/d/',
+    ...         '/export?format=csv'
+    ...     ),
+    ...     temp_fake_data
+    ... )
+    >>> fake_data = pd.read_csv(temp_fake_data)
+    >>> tuple(
+    ...     combine_coordinators(fake_data)[
+    ...         [
+    ...             "firstCoordinator",
+    ...             "secondCoordinator"
+    ...         ]
+    ...     ].values
+    ... )
+    (array(['Mike Logan', 'Ben Stone'], dtype=object),
+     array(['Mike Logan', 'Ben Stone'], dtype=object),
+     array(['Mike Logan', 'Ben Stone'], dtype=object))
     """
-    c1 = data[data.thermopile1 != False].set_index("human-readable timestamp")
-    c2 = data[data.thermopile1 == False].set_index("human-readable timestamp")
+    c1 = data[(
+        data.thermopile1 != False
+    ) & (
+        data.thermopile1 != "False"
+    )].set_index("human-readable timestamp")
+    c2 = data[(
+        data.thermopile1 == False
+    ) | (
+        data.thermopile1 == "False"
+    )].set_index("human-readable timestamp")
     c2 = c2.drop_duplicates().reindex(
         c1.drop_duplicates().index,
         method="ffill",
@@ -283,6 +328,35 @@ def index_participants(df):
     Returns
     -------
     participants_df: DataFrame
+    
+    Example
+    -------
+    >>> import pandas as pd
+    >>> import os
+    >>> from urllib.request import urlretrieve
+    >>> temp_fake_data = "temp_fake_data.csv"
+    >>> if not os.path.exists(
+    ...     os.path.abspath(
+    ...         os.path.dirname(temp_fake_data)
+    ...     )
+    ... ):
+    >>>     os.makedirs(
+    ...         os.path.abspath(
+    ...             os.path.dirname(temp_fake_data)
+    ...         )
+    ...     )
+    >>> urlretrieve(
+    ...     "{1}{0}{2}".format(
+    ...         "1kgZJrKTDSI5xg9uAD_LAYq2PrM20nAmxEiyJ597coKk",
+    ...         'https://docs.google.com/spreadsheets/d/',
+    ...         '/export?format=csv'
+    ...     ),
+    ...     temp_fake_data
+    ... )
+    >>> fake_data = pd.read_csv(temp_fake_data)
+    >>> fake_data = fake_data.reset_index(drop=True)
+    >>> index_participants(fake_data).participant.unique()
+    array([1, 2])
     """
     participants = {}
     # initialize as if participant 0 just finished
@@ -567,53 +641,6 @@ def lookup_counts(
         )
     except:
         return(default)
-
-
-def split_participants(df):
-    """
-    Function to split DataFrame into separate participants
-
-    Parameter
-    ---------
-    df: DataFrame
-
-    Returns
-    -------
-    dfs: list of DataFrames
-    """
-    dfs = []
-    rolling = 0 if df.loc[
-        0,
-        "step"
-    ] == 1 else None
-    for i, row in df.iterrows():
-        if i > 0:
-            if not rolling:
-                rolling = i if row.step == 1 else None
-            if row.step == 1 and df.loc[
-                i-1,
-                "step"
-            ] > row.step:
-                dfs.append(
-                    df.loc[
-                        rolling:i,
-                        :
-                    ].reset_index(
-                        drop=True
-                    )
-                )
-                rolling = i
-            if row.step == 47:
-                last_one = i
-    dfs.append(
-        df.loc[
-            rolling:last_one-1,
-            :
-        ].reset_index(
-            drop=True
-        )
-    )
-    return(dfs)
 
 
 def update_from_one(row):
