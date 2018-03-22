@@ -48,7 +48,8 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pytest --doctest-modules data/
+            pytest data --doctest-modules --cov-report html:output --cov=data
+
 
       - store_artifacts:
           path: test-reports
