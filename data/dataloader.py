@@ -36,12 +36,12 @@ def combine_coordinators(data):
     ...         os.path.dirname(temp_fake_data)
     ...     )
     ... ):
-    >>>     os.makedirs(
+    ...     os.makedirs(
     ...         os.path.abspath(
     ...             os.path.dirname(temp_fake_data)
     ...         )
     ...     )
-    >>> urlretrieve(
+    >>> temp_file = urlretrieve(
     ...     "{1}{0}{2}".format(
     ...         "1kgZJrKTDSI5xg9uAD_LAYq2PrM20nAmxEiyJ597coKk",
     ...         'https://docs.google.com/spreadsheets/d/',
@@ -57,10 +57,8 @@ def combine_coordinators(data):
     ...             "secondCoordinator"
     ...         ]
     ...     ].values
-    ... )
-    (array(['Mike Logan', 'Ben Stone'], dtype=object),
-     array(['Mike Logan', 'Ben Stone'], dtype=object),
-     array(['Mike Logan', 'Ben Stone'], dtype=object))
+    ... )[0]
+    array(['Mike Logan', 'Ben Stone'], dtype=object)
     """
     c1 = data[(
         data.thermopile1 != False
@@ -340,12 +338,12 @@ def index_participants(df):
     ...         os.path.dirname(temp_fake_data)
     ...     )
     ... ):
-    >>>     os.makedirs(
+    ...     os.makedirs(
     ...         os.path.abspath(
     ...             os.path.dirname(temp_fake_data)
     ...         )
     ...     )
-    >>> urlretrieve(
+    >>> temp_file = urlretrieve(
     ...     "{1}{0}{2}".format(
     ...         "1kgZJrKTDSI5xg9uAD_LAYq2PrM20nAmxEiyJ597coKk",
     ...         'https://docs.google.com/spreadsheets/d/',
