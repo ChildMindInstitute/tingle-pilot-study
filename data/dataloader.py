@@ -24,7 +24,7 @@ def combine_coordinators(data):
     -------
     data : DataFrame
         DataFrame with combined coordinator rows
-        
+
     Example
     -------
     >>> import pandas as pd
@@ -326,7 +326,7 @@ def index_participants(df):
     Returns
     -------
     participants_df: DataFrame
-    
+
     Example
     -------
     >>> import pandas as pd
@@ -378,7 +378,7 @@ def load_from_firebase(
     stop=None,
     combine=False,
     marked=False
-):
+): # pragma: no cover
     """
     Function to load data from Firebase.
     Requires [Firebase service account credentials](https://console.firebase.google.com/project/tingle-pilot-collected-data/settings/serviceaccounts/adminsdk)
@@ -677,7 +677,7 @@ def update_from_one(row):
     ... )
     >>> update_from_one(row)
     False
-    
+
     >>> import pandas as pd
     >>> row = pd.Series(
     ...     {
