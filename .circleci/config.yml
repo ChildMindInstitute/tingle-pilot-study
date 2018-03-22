@@ -48,9 +48,15 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pytest data --doctest-modules --cov-report html:output --cov=data
+            pytest data --doctest-modules --cov-report html:coverage --cov=data
+            coverage-badge -o coverage.svg
 
+      - store_artifacts:
+          path: coverage
+
+      - store_artifacts:
+          path: coverage.svg
+          destination: coverage
 
       - store_artifacts:
           path: test-reports
-          destination: test-reports
