@@ -87,3 +87,9 @@ jobs:
           name: run tests
           command: |
             npm test
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - python
+      - javascript
