@@ -1,0 +1,18 @@
+{
+  "name": "neuralnet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lstm.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "assert": "^1.4.1",
+    "mocha": "^5.0.5",
+    "request": "^2.85.0",
+    "synaptic": "^1.1.4"
+  }
+}
