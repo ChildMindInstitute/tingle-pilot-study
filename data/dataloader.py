@@ -122,6 +122,10 @@ def correct_corrections(df, corrections):
     -------
     df2: DataFrame
         updated
+        
+    Example
+    -------
+    
     """
     df2 = df.copy()
     for participant in corrections:
@@ -315,13 +319,16 @@ def dropX(df, X=["X", "x"]):
     return(df.drop(drop))
 
 
-def index_participants(df):
+def index_participants(df, starting_index=1):
     """
     Function to index participants
 
     Parameter
     ---------
     df: DataFrame
+    
+    starting_index: int
+        index for first participant found
 
     Returns
     -------
@@ -358,7 +365,7 @@ def index_participants(df):
     """
     participants = {}
     # initialize as if participant 0 just finished
-    participant = 0
+    participant = starting_index - 1
     task = 47
     p_index = []
     for i, r in df.iterrows():

@@ -67,7 +67,7 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
     return(inputs)
 
 
-def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=None, scale=None):
+def define_trainer_data(df, targets, training_columns, n_samples=None, scale=None):
     """
     Function to build training objects for neural networks from
     a DataFrame
@@ -85,14 +85,12 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
     training_columns: list of strings
         columns to include as inputs
         
-    train_blocks: list of numerics
-        steps to include
-        
     n_samples: int, optional
         exact number of samples to use
         
     scale: list of floats, optional
-        divisors to scale inputs, one per training column
+        divisors to scale inputs, one per training column;
+        if not provided, the max of that column is used
         
     Returns
     -------
@@ -101,6 +99,45 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
             input values
         on_target[]["output"]: list of numeric
             output values
+            
+    Example
+    -------
+    >>> import pandas as pd
+    >>> import os
+    >>> from data.dataloader import correct_targets, combine_coordinators
+    >>> from urllib.request import urlretrieve
+    >>> temp_fake_data = "temp_fake_data.csv"
+    >>> if not os.path.exists(
+    ...     os.path.abspath(
+    ...         os.path.dirname(temp_fake_data)
+    ...     )
+    ... ):
+    ...     os.makedirs(
+    ...         os.path.abspath(
+    ...             os.path.dirname(temp_fake_data)
+    ...         )
+    ...     )
+    >>> temp_file = urlretrieve(
+    ...     "{1}{0}{2}".format(
+    ...         "1kgZJrKTDSI5xg9uAD_LAYq2PrM20nAmxEiyJ597coKk",
+    ...         'https://docs.google.com/spreadsheets/d/',
+    ...         '/export?format=csv'
+    ...     ),
+    ...     temp_fake_data
+    ... )
+    >>> fake_data = correct_targets(
+    ...     combine_coordinators(
+    ...         pd.read_csv(temp_fake_data)
+    ...     ),
+    ...     'http://matter.childmind.org/js/tinglePilotAppScript.json'
+    ... )
+    >>> fake_data.loc["2018-03-22 17:23:33", "ontarget"] = True
+    >>> define_trainer_data(
+    ...     fake_data,
+    ...     {'target': ['food'], 'offtarget': ['offbody-spiral']},
+    ...     ["distance", "thermopile1", "thermopile2", "thermopile3", "thermopile4"]
+    ... )[0]['input']
+    [0.0, 0.2, 0.23809523809523808, 0.2727272727272727, 0.30434782608695654]
     """
     scale = [
         df[input_column].astype(float).max() for input_column in training_columns
@@ -108,8 +145,7 @@ def define_trainer_data(df, targets, training_columns, train_blocks, n_samples=N
     on_target = []
     num_targets = len(targets["target"])
     df = df[
-        (df.ontarget) &
-        (df.step.isin(train_blocks))
+        (df.ontarget)
     ].copy()
     for i, target in enumerate(targets["target"]):
         sample_n = 0
