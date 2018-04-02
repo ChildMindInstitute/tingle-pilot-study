@@ -100,6 +100,10 @@ def define_trainer_data(df, targets, training_columns, n_samples=None):
     -------
     >>> import pandas as pd
     >>> import os
+    >>> import sys
+    >>> sys.path.append(os.path.abspath(
+    ...     os.getcwd()
+    ... ))
     >>> from data.dataloader import correct_targets, combine_coordinators
     >>> from urllib.request import urlretrieve
     >>> temp_fake_data = "temp_fake_data.csv"

@@ -48,8 +48,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pytest data --doctest-modules --cov-report html:coverage --cov=data
-            coverage-badge -o coverage.svg
+            pytest ./neuralnet/ ./data/ --doctest-modules --cov-report html:coverage --cov=.
 
       - store_artifacts:
           path: coverage
