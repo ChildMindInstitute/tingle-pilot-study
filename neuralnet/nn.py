@@ -67,10 +67,10 @@ def define_activation(df, targets, input_columns, test_blocks, n_samples=None, e
     return(inputs)
 
 
-def define_trainer_data(df, targets, training_columns, n_samples=None, scale=None):
+def define_trainer_data(df, targets, training_columns, n_samples=None):
     """
     Function to build training objects for neural networks from
-    a DataFrame
+    a DataFrame, casting training columns to relative z-scores.
     
     Parameters
     ----------
@@ -87,10 +87,6 @@ def define_trainer_data(df, targets, training_columns, n_samples=None, scale=Non
         
     n_samples: int, optional
         exact number of samples to use
-        
-    scale: list of floats, optional
-        divisors to scale inputs, one per training column;
-        if not provided, the max of that column is used
         
     Returns
     -------
@@ -136,17 +132,19 @@ def define_trainer_data(df, targets, training_columns, n_samples=None, scale=Non
     ...     fake_data,
     ...     {'target': ['food'], 'offtarget': ['offbody-spiral']},
     ...     ["distance", "thermopile1", "thermopile2", "thermopile3", "thermopile4"]
-    ... )[0]['input']
-    [0.0, 0.2, 0.23809523809523808, 0.2727272727272727, 0.30434782608695654]
+    ... )[1]['input'][0]
+    0.7071067811865475
     """
-    scale = [
-        df[input_column].astype(float).max() for input_column in training_columns
-    ]
     on_target = []
     num_targets = len(targets["target"])
     df = df[
         (df.ontarget)
     ].copy()
+    for column in training_columns:
+        df[column] = df[column].astype(float)
+        df[column] = (
+            df[column] - df[column].mean()
+        ) / df[column].std()
     for i, target in enumerate(targets["target"]):
         sample_n = 0
         for row in df[
@@ -160,9 +158,7 @@ def define_trainer_data(df, targets, training_columns, n_samples=None, scale=Non
                 on_target.append(
                     {
                         'input': [
-                            float(num)/float(
-                                scale[row_i]
-                            ) for row_i, num in enumerate(row)
+                            float(num) for num in row
                         ],
                         'output': place_true(
                             num_targets,
@@ -184,9 +180,7 @@ def define_trainer_data(df, targets, training_columns, n_samples=None, scale=Non
                 on_target.append(
                     {
                         'input': [
-                            float(num)/float(
-                                scale[row_i]
-                            ) for row_i, num in enumerate(row)
+                            float(num) for num in row
                         ],
                         'output': list(
                             np.zeros(
