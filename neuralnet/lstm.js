@@ -5,7 +5,8 @@ module.exports = {
    * @function train_lstm - Creates and trains a neural network
    * @param {int[]} nodes - number of nodes per layer
    * @param {Object} training_data - data on which to train the neural network
-   * @param {Numeric[]} training_data.input - input values,
+   * @param {Numeric[]} training_data.input - input values
+   * @param {Numeric[]} training_data.output - output values
    * same number as the first value in nodes
    * @param {Numeric} nnError - minimum error value
    * @param {Numeric} nnRate
@@ -40,11 +41,10 @@ module.exports = {
   },
   /**
    * @function test_lstms - Tests an Array of neural networks
-   * @param {Object} testingData - Object with string keys that indicate targets
-   * @param {Numeric[][]} testingData[target].true - Array of numeric arrays of scaled ontarget input data
-   * @param {Numeric[][]} testingData[target].false - Array of numeric arrays of scaled offtarget input data
+   * @param {Object} testingData - data on which to train the neural network
+   * @param {Numeric[]} testingData.input - input values
+   * @param {Numeric[]} testingData.output - output values
    * @param {Object} network - Object with string keys that indicate targets. Must include at least all targets in testingData.
-   * @param {LSTM} network[target] - LSTM trained to classify target as 1 and offtarget as 0
    * @returns {testOutputs}
    */
   test_lstms: function (testingData, network){
@@ -53,14 +53,11 @@ module.exports = {
      * @property {Object} testOutputs[target] 
      */
     var testOutputs = {};
-    for (var target in testingData) {
-      testOutputs[target] = {"true":[],"false":[]};
-      for(var iteration=0; iteration < testingData[target]["test_true"].length; iteration++){
-        testOutputs[target]["true"].push(networks[target].activate(testingData[target]["test_true"][iteration]));
+    for(var iteration=0; iteration < testingData.length; iteration++){
+      if (!(testingData[iteration].output in testOutputs)) {
+        testOutputs[testingData[iteration].output] = [];
       }
-      for(var iteration=0; iteration < testingData[target]["test_false"].length; iteration++){
-        testOutputs[target]["false"].push(networks[target].activate(testingData[target]["test_false"][iteration]));
-      }
+      testOutputs[testingData[iteration].output].push(network.activate(testingData[iteration].input));
     }
     return(testOutputs);
   }
