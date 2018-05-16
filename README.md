@@ -53,4 +53,4 @@ Pilot study for [Tingle wrist-worn position-tracking device](https://matter.chil
 ### timestamp
 *integer* [Unix time](https://en.wikipedia.org/wiki/Unix_time) milliseconds
 ### username
-*string* name of coordinator who added that row's [notes](notes)
+*string* name of coordinator who added that row's [notes](#notes)
