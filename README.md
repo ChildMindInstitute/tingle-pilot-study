@@ -13,9 +13,9 @@ Pilot study for [Tingle wrist-worn position-tracking device](https://matter.chil
 ### secondCoordinator
 *string* name of coordinator not giving instructions, facing the participant's right side, and recording data via [Tingle Gesture Detection Pilot Study App](https://matter.childmind.org/tingle/tingle-min2.html) not connected to the Tingle
 ### coordinator1
-*boolean* if the Tingle was proximal to the [target](#target) per [firstCoordinator](#firstCoordinator)
+*boolean* if the Tingle was proximal to the [target](#target) per [firstCoordinator](#firstcoordinator)
 ### coordinator2
-*boolean* if the Tingle was proximal to the [target](#target) per [secondCoordinator](#secondCoordinator)
+*boolean* if the Tingle was proximal to the [target](#target) per [secondCoordinator](#secondcoordinator)
 ### distance
 *numeric* output of proximity sensor
 ### hand
@@ -37,9 +37,9 @@ Pilot study for [Tingle wrist-worn position-tracking device](https://matter.chil
 ### section
 *string* 'A', 'B', 'C' or 'D' indicating semantic groupings of [question](#question)s
 ### step
-*integer* sequential index of [question](#question) per [firstCoordinator](#firstCoordinator)
+*integer* sequential index of [question](#question) per [firstCoordinator](#firstcoordinator)
 ### step_c2
-*integer* sequential index of [question](#question) per [secondCoordinator](#secondCoordinator)
+*integer* sequential index of [question](#question) per [secondCoordinator](#secondcoordinator)
 ### target
 *string* the [target](#target) for which coordinators would indicate proximity
 ### thermopile1
