@@ -86,7 +86,7 @@ jobs:
           name: run tests
           command: |
             cd neuralnet
-            npm test
+            npm nyc --reporter=text mocha
 workflows:
   version: 2
   build_and_test:
