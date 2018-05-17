@@ -7,6 +7,41 @@ Pilot study for [Tingle wrist-worn position-tracking device](https://matter.chil
 
 ☕ 68.42% JavaScript coverage
 
+<!--ts-->
+   * [tingle-pilot-study](#tingle-pilot-study)
+      * [Functions](#functions)
+      * [Data Dictionary](#data-dictionary)
+         * [firstCoordinator](#firstcoordinator)
+         * [secondCoordinator](#secondcoordinator)
+         * [coordinator1](#coordinator1)
+         * [coordinator2](#coordinator2)
+         * [distance](#distance)
+         * [hand](#hand)
+         * [human-readable timestamp](#human-readable-timestamp)
+         * [notes](#notes)
+         * [ontarget](#ontarget)
+         * [participant](#participant)
+         * [pitch](#pitch)
+         * [question](#question)
+         * [roll](#roll)
+         * [section](#section)
+         * [step](#step)
+         * [step_c2](#step_c2)
+         * [target](#target)
+         * [thermopile1](#thermopile1)
+         * [thermopile2](#thermopile2)
+         * [thermopile3](#thermopile3)
+         * [thermopile4](#thermopile4)
+         * [timestamp](#timestamp)
+         * [username](#username)
+
+<!-- Added by: jclucas, at: 2018-05-17T13:55-04:00 -->
+
+<!--te-->
+
+## Functions
+
+
 ## Data Dictionary
 ### firstCoordinator
 *string* name of coordinator giving instructions, facing the participant's face, and recording data via [Tingle Gesture Detection Pilot Study App](https://okgab.com/tinglemin/) connected to the Tingle via Bluetooth
