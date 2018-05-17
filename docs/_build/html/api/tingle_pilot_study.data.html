@@ -1,0 +1,338 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>tingle_pilot_study.data package &#8212; Tingle Pilot Study 0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tingle-pilot-study-data-package">
+<h1>tingle_pilot_study.data package<a class="headerlink" href="#tingle-pilot-study-data-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-tingle_pilot_study.data.dataloader">
+<span id="tingle-pilot-study-data-dataloader-module"></span><h2>tingle_pilot_study.data.dataloader module<a class="headerlink" href="#module-tingle_pilot_study.data.dataloader" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.combine_coordinators">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">combine_coordinators</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.combine_coordinators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to combine coordinator rows from 2 to 1.</p>
+<dl class="docutils">
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd>DataFrame with separate coordinator rows</dd>
+</dl>
+<dl class="docutils">
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd>DataFrame with combined coordinator rows</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.correct_corrections">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">correct_corrections</code><span class="sig-paren">(</span><em>df</em>, <em>corrections</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.correct_corrections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to correct data entry errors</p>
+<p>df: DataFrame</p>
+<dl class="docutils">
+<dt>corrections: dictionary</dt>
+<dd><p class="first">key: participant number
+value: dictionary</p>
+<blockquote class="last">
+<div><p>key: column
+value: dictionary</p>
+<blockquote>
+<div><p>key: incorrect value
+value: dictionary</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>key: string</dt>
+<dd>“value” or “column”</dd>
+<dt>value: anything that can go in a DataFrame cell</dt>
+<dd>value or column name</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>df2: DataFrame</dt>
+<dd>updated</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.correct_targets">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">correct_targets</code><span class="sig-paren">(</span><em>df</em>, <em>targets</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.correct_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to update targets that were steamrolled
+during data collection. 🧖</p>
+<p>df: DataFrame</p>
+<dl class="docutils">
+<dt>targets: dictionary</dt>
+<dd><dl class="first last docutils">
+<dt>key: numeric</dt>
+<dd>step</dd>
+<dt>value: string</dt>
+<dd>target</dd>
+<dt>or string</dt>
+<dd>URL to JSON with respective
+labels “number” and “target” for key and
+value</dd>
+</dl>
+</dd>
+</dl>
+<p>df: DataFrame</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.count_ontarget_samples">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">count_ontarget_samples</code><span class="sig-paren">(</span><em>df</em>, <em>human_readable=False</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.count_ontarget_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to count usable samples.</p>
+<p>df: DataFrame</p>
+<dl class="docutils">
+<dt>human_readable: Boolean, optional</dt>
+<dd>default=False</dd>
+</dl>
+<dl class="docutils">
+<dt>ontarget_counts: DataFrame</dt>
+<dd>MultiIndexed if human_readable, otherwise
+“step” by “participant”</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.dropX">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">dropX</code><span class="sig-paren">(</span><em>df, X=['X', 'x']</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.dropX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to drop data annotated to drop.</p>
+<p>df: DataFrame</p>
+<dl class="docutils">
+<dt>X: list of strings, optional</dt>
+<dd>notes values indicating to drop an iteration</dd>
+</dl>
+<p>df: DataFrame</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.index_participants">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">index_participants</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.index_participants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to index participants</p>
+<p>df: DataFrame</p>
+<p>participants_df: DataFrame</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.load_from_firebase">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">load_from_firebase</code><span class="sig-paren">(</span><em>dbURL='https://tingle-pilot-collected-data.firebaseio.com/'</em>, <em>notes=False</em>, <em>start=None</em>, <em>stop=None</em>, <em>combine=False</em>, <em>marked=False</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.load_from_firebase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to load data from Firebase.
+Requires [Firebase service account credentials](<a class="reference external" href="https://console.firebase.google.com/project/tingle-pilot-collected-data/settings/serviceaccounts/adminsdk">https://console.firebase.google.com/project/tingle-pilot-collected-data/settings/serviceaccounts/adminsdk</a>)
+in JSON format.</p>
+<dl class="docutils">
+<dt>dbURL <span class="classifier-delimiter">:</span> <span class="classifier">string (optional)</span></dt>
+<dd>Firebase database to pull data from</dd>
+<dt>notes <span class="classifier-delimiter">:</span> <span class="classifier">Boolean (optional)</span></dt>
+<dd>Return notes as well as data?</dd>
+<dt>start <span class="classifier-delimiter">:</span> <span class="classifier">date or datetime (optional)</span></dt>
+<dd>start time of data to include (eg, <cite>datetime.date(2018,3,6)</cite>)</dd>
+<dt>stop <span class="classifier-delimiter">:</span> <span class="classifier">date or datetime (optional)</span></dt>
+<dd>stop time of data to include (eg, <cite>datetime.date(2018,3,6)</cite>)</dd>
+<dt>combine <span class="classifier-delimiter">:</span> <span class="classifier">Boolean (optional)</span></dt>
+<dd>combine coordinators into a single row?</dd>
+<dt>marked <span class="classifier-delimiter">:</span> <span class="classifier">Boolean (optional)</span></dt>
+<dd>only include ontarget==True rows?</dd>
+</dl>
+<dl class="docutils">
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd>Pandas DataFrame of data from Firebase</dd>
+<dt>notes <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame (optional)</span></dt>
+<dd>Pandas DataFrame of notes from Firebase iff parameter notes==True,</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.lookup_counts">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">lookup_counts</code><span class="sig-paren">(</span><em>row</em>, <em>lookup_table</em>, <em>index='step'</em>, <em>columns='participant'</em>, <em>default=False</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.lookup_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to apply to a DataFrame to cross-reference
+counts in a lookup_table.</p>
+<dl class="docutils">
+<dt>row: Series</dt>
+<dd>row of a DataFrame</dd>
+<dt>lookup_table: DataFrame</dt>
+<dd>DataFrame to cross-reference</dd>
+<dt>index: string or numeric, opitional</dt>
+<dd>name of column in row that contains an index value
+for lookup_table, default = “step”</dd>
+<dt>columns: string or numeric, opitional</dt>
+<dd>name of column in row that contains a column name
+for lookup_table, default = “participant”</dd>
+<dt>default: boolean or other, optional</dt>
+<dd>value to return if lookup not in lookup table
+default = False</dd>
+</dl>
+<dl class="docutils">
+<dt>value: boolean or other</dt>
+<dd>the value at index, columns; otherwise default</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.split_participants">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">split_participants</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.split_participants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to split DataFrame into separate participants</p>
+<p>df: DataFrame</p>
+<p>dfs: list of DataFrames</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.update_from_one">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">update_from_one</code><span class="sig-paren">(</span><em>row</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.update_from_one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to update rows that need updated
+from agreement to single_coordinator</p>
+<p>row: Series</p>
+<p>updated: Boolean or other</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">row</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">&quot;one_coordinator&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;both_coordinators&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;needs_updated&quot;</span><span class="p">:</span> <span class="kc">True</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">update_from_one</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">row</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">&quot;one_coordinator&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;both_coordinators&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;needs_updated&quot;</span><span class="p">:</span> <span class="kc">False</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">update_from_one</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">row</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">&quot;one_coordinator&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;both_coordinators&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">&quot;needs_updated&quot;</span><span class="p">:</span> <span class="kc">True</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">update_from_one</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="tingle_pilot_study.data.dataloader.update_too_few">
+<code class="descclassname">tingle_pilot_study.data.dataloader.</code><code class="descname">update_too_few</code><span class="sig-paren">(</span><em>df</em>, <em>condition</em><span class="sig-paren">)</span><a class="headerlink" href="#tingle_pilot_study.data.dataloader.update_too_few" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to update a DataFrame with an inappropriate
+number of samples in coordinator agreement.</p>
+<dl class="docutils">
+<dt>df: DataFrame</dt>
+<dd>DataFrame to update</dd>
+<dt>condition: string</dt>
+<dd>definition of inappropriate count, eg, “&lt; 5”</dd>
+</dl>
+<dl class="docutils">
+<dt>df: DataFrame</dt>
+<dd>DataFrame updated with single-rater matches
+replacing dual-rater agreement in cases indicated
+by condition</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-tingle_pilot_study.data">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tingle_pilot_study.data" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tingle_pilot_study.data package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-tingle_pilot_study.data.dataloader">tingle_pilot_study.data.dataloader module</a></li>
+<li><a class="reference internal" href="#module-tingle_pilot_study.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/tingle_pilot_study.data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Child Mind Institute MATTER Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/api/tingle_pilot_study.data.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
