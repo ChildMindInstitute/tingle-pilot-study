@@ -510,10 +510,11 @@ def load_from_firebase(
     data["human-readable timestamp"] = pd.to_datetime(
         data["timestamp"]*1000000
     )
-    stop = start + datetime.timedelta(days=1) if (
-        (start) and
-        (stop == start)
-    ) else stop
+    if stop:
+        stop = start + datetime.timedelta(days=1) if (
+            (start) and
+            (stop == start)
+        ) else stop
     data = data[
             (data["human-readable timestamp"] >= start) &
             (data["human-readable timestamp"] <= stop)

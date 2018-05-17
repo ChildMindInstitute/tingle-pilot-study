@@ -10,3 +10,4 @@ metastore_db/*
 *node*
 *package*json
 MATTER-website
+docs/build/*
