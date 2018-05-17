@@ -1,17 +1,31 @@
-# tingle-pilot-study
+# Tingle Pilot Study
+## Description
 Pilot study for [Tingle wrist-worn position-tracking device](https://matter.childmind.org/tingle) intended for use with body-focused repetitive behaviors such as trichotillomania.
 
+### code coverage
 [![CircleCI](https://circleci.com/gh/ChildMindInstitute/tingle-pilot-study/tree/master.svg?style=shield&circle-token=7650679b4d1aa3526b523d32fe49526b8cf5a180)](https://circleci.com/gh/ChildMindInstitute/tingle-pilot-study/tree/master)
 
 🐍 ![Python coverage](.circleci/coverage.svg)
 
 ☕ 68.42% JavaScript coverage
 
+## Highlighted Functions
+
+### data.dataloader.count_ontarget_samples
+Function to count usable samples. Returns a(n optionally human-readable, ie with labeled steps) pandas DataFrame of ontarget samples per step per participant. [📚 documentation](http://tingle-pilot-study.readthedocs.io/en/latest/data.html?#data.dataloader.count_ontarget_samples)
+
+### data.dataloader.update_too_few
+Function to update a DataFrame with an inappropriate number of samples in coordinator agreement. Returns a pandas DataFrame updated with single-rater matches  replacing dual-rater agreement in cases indicated by condition given. [📚 documentation](http://tingle-pilot-study.readthedocs.io/en/latest/data.html?#data.dataloader.update_too_few)
+
+## README Table of Contents
 <!--ts-->
-   * [tingle-pilot-study](#tingle-pilot-study)
+   * [Tingle Pilot Study](#tingle-pilot-study)
+      * [Description](#description)
+         * [code coverage](#code-coverage)
       * [Highlighted Functions](#highlighted-functions)
          * [data.dataloader.count_ontarget_samples](#datadataloadercount_ontarget_samples)
          * [data.dataloader.update_too_few](#datadataloaderupdate_too_few)
+      * [README Table of Contents](#readme-table-of-contents)
       * [Data Dictionary](#data-dictionary)
          * [firstCoordinator](#firstcoordinator)
          * [secondCoordinator](#secondcoordinator)
@@ -37,17 +51,9 @@ Pilot study for [Tingle wrist-worn position-tracking device](https://matter.chil
          * [timestamp](#timestamp)
          * [username](#username)
 
-<!-- Added by: jclucas, at: 2018-05-17T14:14-04:00 -->
+<!-- Added by: jclucas, at: 2018-05-17T19:00-04:00 -->
 
 <!--te-->
-
-## Highlighted Functions
-
-### data.dataloader.count_ontarget_samples
-Function to count usable samples. Returns a(n optionally human-readable, ie with labeled steps) pandas DataFrame of ontarget samples per step per participant. [📚 documentation](http://tingle-pilot-study.readthedocs.io/en/latest/data.html?#data.dataloader.count_ontarget_samples)
-
-### data.dataloader.update_too_few
-Function to update a DataFrame with an inappropriate number of samples in coordinator agreement. Returns a pandas DataFrame updated with single-rater matches  replacing dual-rater agreement in cases indicated by condition given. [📚 documentation](http://tingle-pilot-study.readthedocs.io/en/latest/data.html?#data.dataloader.update_too_few)
 
 ## Data Dictionary
 ### firstCoordinator
