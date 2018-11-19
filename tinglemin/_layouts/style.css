@@ -1,4 +1,0 @@
-{% include css/bootstrap.min.css %}
-{% include css/agency.css %}
-{% include css/matter-lab.css %}
-{{ content }}
